@@ -1,0 +1,27 @@
+const express = require('express')
+const router = express.Router()
+const auth = require('../middleware/auth')
+const { verifyCsrf } = require('../middleware/csrf')
+const login = require('../controllers/authController')
+const dashboard = require('../controllers/dashboardController')
+const usuarios = require('../controllers/managementController')
+
+router.get('/login', (req, res) => req.usuario ? res.redirect('/') : login.loginView(req, res))
+router.post('/login', verifyCsrf, login.loginWeb)
+router.post('/logout', auth.requireWebAuth, verifyCsrf, login.logoutWeb)
+router.get('/configuracion', auth.requireWebAuth, login.settingsView)
+router.get('/configuracion/acceso', auth.requireWebAuth, login.tokenView)
+// La URL anterior permanece para no romper marcadores guardados.
+router.get('/mi-token', auth.requireWebAuth, (req, res) => res.redirect('/configuracion/acceso'))
+router.get('/', auth.requireWebAuth, dashboard.show)
+router.get('/usuarios', auth.requireWebAuth, auth.requireRole('administrador'), usuarios.list)
+router.get('/usuarios/nuevo', auth.requireWebAuth, auth.requireRole('administrador'), usuarios.newForm)
+router.post('/usuarios/nuevo', auth.requireWebAuth, auth.requireRole('administrador'), verifyCsrf, usuarios.create)
+router.get('/usuarios/:id/editar', auth.requireWebAuth, auth.requireRole('administrador'), usuarios.editForm)
+router.post('/usuarios/:id/editar', auth.requireWebAuth, auth.requireRole('administrador'), verifyCsrf, usuarios.update)
+router.post('/usuarios/:id/estado', auth.requireWebAuth, auth.requireRole('administrador'), verifyCsrf, usuarios.toggleActive)
+
+router.post('/api/auth/login', login.apiLogin)
+router.get('/api/auth/me', auth.requireBearer, login.apiMe)
+router.get('/api/usuarios', auth.requireBearer, auth.requireApiRole('administrador'), usuarios.apiList)
+module.exports = router

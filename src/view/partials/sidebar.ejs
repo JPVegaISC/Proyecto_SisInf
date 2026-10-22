@@ -1,0 +1,32 @@
+<aside class="sidebar">
+  <a class="brand" href="/" aria-label="Ir al inicio">
+    <span class="brand-icon" aria-hidden="true">GI</span>
+    <span class="brand-text"><strong>Guardería Infantil</strong><small>Sistema de información</small></span>
+  </a>
+  <div class="sidebar-content">
+    <div class="sidebar-caption">Menú</div>
+    <nav class="side-nav" aria-label="Navegación principal">
+      <a href="/" class="<%= activePage === 'inicio' ? 'selected' : '' %>" <%- activePage === 'inicio' ? 'aria-current="page"' : '' %>>
+        <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M9 21v-7h6v7"/></svg>
+        Inicio
+      </a>
+      <% if (usuario.rol === 'administrador') { %>
+        <a href="/usuarios" class="<%= activePage === 'usuarios' ? 'selected' : '' %>" <%- activePage === 'usuarios' ? 'aria-current="page"' : '' %>>
+          <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20v-2c0-3 2.5-5 6-5s6 2 6 5v2"/><path d="M17 6a3 3 0 0 1 0 6m1 2c2 .5 3 2 3 4v2"/></svg>
+          Personal
+        </a>
+      <% } %>
+    </nav>
+  </div>
+  <div class="sidebar-bottom">
+    <a href="/configuracion" class="bottom-link <%= activePage === 'configuracion' ? 'selected' : '' %>" <%- activePage === 'configuracion' ? 'aria-current="page"' : '' %>>
+      <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.4-2-3.5-2.3.9A7.6 7.6 0 0 0 14.5 5l-.4-2.5h-4.2L9.5 5a7.6 7.6 0 0 0-2.1 1.8l-2.3-.9-2 3.5 2 1.4A7 7 0 0 0 5 12c0 .4 0 .8.1 1.2l-2 1.4 2 3.5 2.3-.9A7.6 7.6 0 0 0 9.5 19l.4 2.5h4.2l.4-2.5a7.6 7.6 0 0 0 2.1-1.8l2.3.9 2-3.5-2-1.4c.1-.4.1-.8.1-1.2Z"/></svg>
+      Configuración
+    </a>
+    <div class="mini-profile"><span class="avatar-small"><%= usuario.nombre.charAt(0).toUpperCase() %></span><div><b><%= usuario.nombre %></b><small><%= ({administrador:'Administrador',encargado:'Encargado',enfermeria:'Enfermería'})[usuario.rol] %></small></div></div>
+    <form action="/logout" method="POST">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <button type="submit" class="logout-button">Cerrar sesión <span aria-hidden="true">↗</span></button>
+    </form>
+  </div>
+</aside>

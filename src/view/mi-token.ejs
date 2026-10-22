@@ -1,0 +1,32 @@
+<%- include('partials/page-start', { activePage: 'configuracion' }) %>
+<nav class="breadcrumb" aria-label="Ubicación"><a href="/configuracion">Configuración</a> <span aria-hidden="true">/</span> Información de acceso</nav>
+<header class="page-heading"><div><h1>Información de acceso</h1><p>Datos técnicos de la sesión iniciada.</p></div></header>
+<section class="surface-card access-card">
+  <h2 class="small-section-title">Sesión actual</h2>
+  <dl class="details-list compact"><div><dt>Estado</dt><dd>Activa</dd></div><div><dt>Método de acceso</dt><dd>Token JWT</dd></div><div><dt>Duración del token</dt><dd>2 horas desde el inicio de sesión</dd></div></dl>
+  <details class="technical-details">
+    <summary>Mostrar token y opciones de prueba</summary>
+    <div class="technical-inside">
+      <p>Este token identifica tu sesión. Evita compartirlo, publicarlo o incluirlo completo en capturas.</p>
+      <label for="jwt">Token JWT</label>
+      <textarea id="jwt" rows="5" readonly spellcheck="false"><%= token %></textarea>
+      <div class="token-actions"><button type="button" class="btn btn-outline" id="copyToken">Copiar token</button><span id="copyStatus" role="status"></span></div>
+      <p class="test-hint">Para comprobarlo en una petición: <code>GET /api/auth/me</code> con la cabecera <code>Authorization: Bearer TU_TOKEN</code>. El token deja de servir al cerrar sesión.</p>
+    </div>
+  </details>
+</section>
+<script>
+  const copyButton = document.getElementById('copyToken')
+  copyButton.addEventListener('click', async () => {
+    const input = document.getElementById('jwt')
+    const status = document.getElementById('copyStatus')
+    try {
+      await navigator.clipboard.writeText(input.value)
+      status.textContent = 'Copiado.'
+    } catch {
+      input.select()
+      status.textContent = 'Seleccionado. Presiona Ctrl+C.'
+    }
+  })
+</script>
+<%- include('partials/page-end') %>

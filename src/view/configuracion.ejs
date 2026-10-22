@@ -1,0 +1,18 @@
+<%- include('partials/page-start', { activePage: 'configuracion' }) %>
+<header class="page-heading"><div><h1>Configuración</h1><p>Información de tu cuenta y opciones de acceso.</p></div></header>
+<div class="settings-layout">
+  <section class="surface-card">
+    <h2 class="small-section-title">Mi cuenta</h2>
+    <dl class="details-list">
+      <div><dt>Nombre</dt><dd><%= usuario.nombre %></dd></div>
+      <div><dt>Correo electrónico</dt><dd><%= usuario.email %></dd></div>
+      <div><dt>Área</dt><dd><%= ({administrador:'Administración',encargado:'Encargado de grupo',enfermeria:'Enfermería'})[usuario.rol] %></dd></div>
+    </dl>
+  </section>
+  <section class="surface-card setting-link-card">
+    <h2 class="small-section-title">Información de acceso</h2>
+    <p>Consulta los detalles técnicos de tu sesión, incluido el token de autenticación. Esta sección se utiliza para verificar el acceso del sistema.</p>
+    <a href="/configuracion/acceso" class="btn btn-outline">Ver información de acceso <span aria-hidden="true">→</span></a>
+  </section>
+</div>
+<%- include('partials/page-end') %>

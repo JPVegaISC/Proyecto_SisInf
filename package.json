@@ -1,0 +1,31 @@
+{
+  "name": "proyecto-sisinf",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sistema web para guardería infantil: autenticación JWT y administración de usuarios",
+  "main": "src/app.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js",
+    "configurar": "node scripts/configurar.js",
+    "test": "node --test test/*.test.js",
+    "check": "node scripts/verificar-codigo.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.4.2",
+    "ejs": "^6.0.1",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "jsonwebtoken": "^9.0.3",
+    "mysql2": "^3.24.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}

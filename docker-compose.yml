@@ -1,0 +1,46 @@
+name: proyecto_sisinf
+services:
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Ejecuta node scripts/configurar.js}
+      MYSQL_DATABASE: ${DB_DATABASE:-guarderia}
+      MYSQL_USER: ${DB_USER:-guarderia_app}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?Ejecuta node scripts/configurar.js}
+    ports:
+      - "127.0.0.1:${MYSQL_PORT:-3309}:3306"
+    volumes:
+      - guarderia_mysql_data:/var/lib/mysql
+      - ./docker/mysql-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "MYSQL_PWD=\"$${MYSQL_ROOT_PASSWORD}\" mysqladmin ping -h 127.0.0.1 -uroot --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+  app:
+    build: .
+    restart: unless-stopped
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: 3000
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: ${DB_DATABASE:-guarderia}
+      DB_USER: ${DB_USER:-guarderia_app}
+      DB_PASSWORD: ${DB_PASSWORD:?Ejecuta node scripts/configurar.js}
+      JWT_SECRET: ${JWT_SECRET:?Ejecuta node scripts/configurar.js}
+      SESSION_SECRET: ${SESSION_SECRET:?Ejecuta node scripts/configurar.js}
+      ADMIN_NAME: ${ADMIN_NAME:-Administrador General}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@guarderia.local}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Ejecuta node scripts/configurar.js}
+    ports:
+      - "127.0.0.1:${APP_PORT:-3010}:3000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+volumes:
+  guarderia_mysql_data:

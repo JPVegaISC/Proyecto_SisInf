@@ -1,0 +1,21 @@
+<%- include('partials/page-start', { activePage: 'usuarios' }) %>
+<div class="page-heading"><div><h1>Personal</h1><p>Cuentas del personal que trabaja en la guardería.</p></div><a class="btn btn-primary" href="/usuarios/nuevo">+ Nuevo usuario</a></div>
+<section class="surface-card"><div class="section-title"><div><h3>Personal registrado</h3><p><%= usuarios.length %> usuarios en la base de datos</p></div></div>
+<div class="table-scroll"><table><thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>
+<% usuarios.forEach(u => { %>
+  <tr>
+    <td><div class="table-name"><span class="avatar-small"><%= u.nombre.charAt(0).toUpperCase() %></span><b><%= u.nombre %></b><% if (u.id === usuario.id) { %><span class="chip">Tú</span><% } %></div></td>
+    <td><%= u.email %></td>
+    <td><span class="role-tag"><%= ({administrador:'Administrador',encargado:'Encargado',enfermeria:'Enfermería'})[u.rol] %></span></td>
+    <td><span class="<%= u.activo ? 'text-good' : 'text-muted' %>"><%= u.activo ? 'Activo' : 'Inactivo' %></span></td>
+    <td><div class="table-actions"><a href="/usuarios/<%= u.id %>/editar" class="inline-link">Editar</a>
+      <% if (u.rol !== 'administrador' && u.id !== usuario.id) { %>
+        <form action="/usuarios/<%= u.id %>/estado" method="POST"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="link-button" type="submit"><%= u.activo ? 'Desactivar' : 'Reactivar' %></button></form>
+      <% } %>
+    </div></td>
+  </tr>
+<% }) %>
+</tbody></table></div>
+</section>
+<p class="helper-paragraph">Las cuentas inactivas no pueden ingresar al sistema.</p>
+<%- include('partials/page-end') %>

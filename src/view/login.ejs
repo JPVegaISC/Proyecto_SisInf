@@ -1,0 +1,33 @@
+<%- include('partials/head') %>
+<body class="login-body">
+  <div class="login-layout">
+    <section class="login-info">
+      <a class="login-logo" href="/login"><span class="brand-icon" aria-hidden="true">GI</span><span>Guardería Infantil</span></a>
+      <div class="welcome-block">
+        <span class="section-kicker">SISTEMA DE INFORMACIÓN</span>
+        <h1>Un lugar para organizar el cuidado de los niños.</h1>
+        <p>Consulta y registra la información de la guardería desde un solo lugar.</p>
+        <div class="login-decoration" aria-hidden="true"><span></span><span></span><span></span></div>
+      </div>
+      <small class="foot-note">Acceso exclusivo para personal autorizado.</small>
+    </section>
+    <main class="login-form-side">
+      <div class="login-card">
+        <h2>Iniciar sesión</h2>
+        <p>Ingresa los datos de tu cuenta.</p>
+        <% if (salida) { %><div class="alert alert-success">Sesión cerrada correctamente.</div><% } %>
+        <%- include('partials/flash') %>
+        <form method="POST" action="/login">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <label for="email">Correo electrónico</label>
+          <input id="email" name="email" type="email" placeholder="correo@guarderia.com" autocomplete="username" maxlength="150" required autofocus>
+          <label for="password">Contraseña</label>
+          <input id="password" name="password" type="password" placeholder="Ingresa tu contraseña" autocomplete="current-password" required>
+          <button class="btn btn-primary btn-full" type="submit">Entrar <span aria-hidden="true">→</span></button>
+        </form>
+        <div class="login-help">Si todavía no tienes cuenta, solicítala a la administración.</div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
