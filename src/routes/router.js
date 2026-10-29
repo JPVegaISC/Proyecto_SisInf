@@ -5,6 +5,7 @@ const { verifyCsrf } = require('../middleware/csrf')
 const login = require('../controllers/authController')
 const dashboard = require('../controllers/dashboardController')
 const usuarios = require('../controllers/managementController')
+const expedientes = require('../controllers/expedientesController')
 
 router.get('/login', (req, res) => req.usuario ? res.redirect('/') : login.loginView(req, res))
 router.post('/login', verifyCsrf, login.loginWeb)
@@ -21,7 +22,16 @@ router.get('/usuarios/:id/editar', auth.requireWebAuth, auth.requireRole('admini
 router.post('/usuarios/:id/editar', auth.requireWebAuth, auth.requireRole('administrador'), verifyCsrf, usuarios.update)
 router.post('/usuarios/:id/estado', auth.requireWebAuth, auth.requireRole('administrador'), verifyCsrf, usuarios.toggleActive)
 
+// El administrador registra y modifica. El resto del personal solo consulta.
+router.get('/expedientes', auth.requireWebAuth, expedientes.list)
+router.get('/expedientes/nuevo', auth.requireWebAuth, auth.requireRole('administrador'), expedientes.newForm)
+router.post('/expedientes/nuevo', auth.requireWebAuth, auth.requireRole('administrador'), verifyCsrf, expedientes.create)
+router.get('/expedientes/:id', auth.requireWebAuth, expedientes.show)
+router.get('/expedientes/:id/editar', auth.requireWebAuth, auth.requireRole('administrador'), expedientes.editForm)
+router.post('/expedientes/:id/editar', auth.requireWebAuth, auth.requireRole('administrador'), verifyCsrf, expedientes.update)
 router.post('/api/auth/login', login.apiLogin)
 router.get('/api/auth/me', auth.requireBearer, login.apiMe)
 router.get('/api/usuarios', auth.requireBearer, auth.requireApiRole('administrador'), usuarios.apiList)
+router.get('/api/expedientes', auth.requireBearer, auth.requireApiRole('administrador', 'encargado', 'enfermeria'), expedientes.apiList)
+router.get('/api/expedientes/:id', auth.requireBearer, auth.requireApiRole('administrador', 'encargado', 'enfermeria'), expedientes.apiShow)
 module.exports = router

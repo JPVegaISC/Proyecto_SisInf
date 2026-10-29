@@ -1,0 +1,11 @@
+<%- include('partials/page-start', { activePage: 'expedientes' }) %>
+<header class="page-heading"><div><span class="eyebrow">REGISTRO DE MENORES</span><h1>Expedientes</h1><p>Información de los niños y sus familiares.</p></div><% if (canWrite) { %><a class="btn btn-primary" href="/expedientes/nuevo">+ Nuevo expediente</a><% } %></header>
+<section class="surface-card">
+<div class="section-title"><div><h3>Menores registrados</h3><p>Consulta las fichas del sistema.</p></div><span class="count-pill"><%= menores.length %> <%= q ? 'resultados' : 'registros mostrados' %></span></div>
+<form class="search-bar" method="GET" action="/expedientes"><div><label class="sr-only" for="q">Buscar por nombre, apellido o ID</label><input type="search" id="q" name="q" maxlength="100" value="<%= q %>" placeholder="Buscar por nombre, apellido o número de expediente"></div><button class="btn btn-outline" type="submit">Buscar</button><% if (q) { %><a class="btn btn-text" href="/expedientes">Limpiar</a><% } %></form>
+<% if (menores.length === 0) { %><div class="empty-state"><div class="empty-illustration">▤</div><h3><%= q ? 'No hay coincidencias' : 'Todavía no hay expedientes' %></h3><p><%= q ? 'Intenta con otro nombre o apellido.' : 'Cuando registres al primer menor aparecerá aquí.' %></p><% if (canWrite && !q) { %><a class="btn btn-primary" href="/expedientes/nuevo">Registrar menor</a><% } %></div>
+<% } else { %><div class="table-scroll"><table><thead><tr><th>Expediente</th><th>Nombre del menor</th><th>Fecha de nacimiento</th><th>Edad</th><th></th></tr></thead><tbody>
+<% menores.forEach(m => { %><tr><td><span class="folio-tag"><%= m.folio %></span></td><td><div class="table-name"><span class="avatar-small"><%= m.nombres.charAt(0).toUpperCase() %></span><b><%= [m.nombres,m.apellido_paterno,m.apellido_materno].filter(Boolean).join(' ') %></b></div></td><td><%= m.fecha_nacimiento %></td><td><%= m.edad %></td><td><a class="inline-link" href="/expedientes/<%= m.id %>">Ver ficha →</a></td></tr><% }) %>
+</tbody></table></div><% } %>
+</section><p class="helper-paragraph">Por privacidad, los expedientes solo están disponibles para el personal con sesión iniciada. Se muestran hasta 200 registros por búsqueda.</p>
+<%- include('partials/page-end') %>

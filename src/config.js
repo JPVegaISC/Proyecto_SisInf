@@ -29,6 +29,7 @@ module.exports = {
     database: process.env.DB_DATABASE,
     waitForConnections: true,
     connectionLimit: 10,
-    timezone: 'local'
+    timezone: 'local',
+    dateStrings: true
   }
 }
