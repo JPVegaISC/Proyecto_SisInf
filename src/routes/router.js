@@ -6,6 +6,8 @@ const login = require('../controllers/authController')
 const dashboard = require('../controllers/dashboardController')
 const usuarios = require('../controllers/managementController')
 const expedientes = require('../controllers/expedientesController')
+const grupos = require('../controllers/gruposController')
+const recepcion = require('../controllers/recepcionController')
 
 router.get('/login', (req, res) => req.usuario ? res.redirect('/') : login.loginView(req, res))
 router.post('/login', verifyCsrf, login.loginWeb)
@@ -21,6 +23,16 @@ router.post('/usuarios/nuevo', auth.requireWebAuth, auth.requireRole('administra
 router.get('/usuarios/:id/editar', auth.requireWebAuth, auth.requireRole('administrador'), usuarios.editForm)
 router.post('/usuarios/:id/editar', auth.requireWebAuth, auth.requireRole('administrador'), verifyCsrf, usuarios.update)
 router.post('/usuarios/:id/estado', auth.requireWebAuth, auth.requireRole('administrador'), verifyCsrf, usuarios.toggleActive)
+
+// Administración organiza los grupos; los encargados consultan los asignados.
+router.get('/grupos', auth.requireWebAuth, auth.requireRole('administrador', 'encargado'), grupos.list)
+router.get('/grupos/menores/:id/cambiar', auth.requireWebAuth, auth.requireRole('administrador'), grupos.cambioForm)
+router.post('/grupos/menores/:id/cambiar', auth.requireWebAuth, auth.requireRole('administrador'), verifyCsrf, grupos.cambiarGrupo)
+router.get('/grupos/:id', auth.requireWebAuth, auth.requireRole('administrador', 'encargado'), grupos.show)
+router.post('/grupos/:id/encargado', auth.requireWebAuth, auth.requireRole('administrador'), verifyCsrf, grupos.asignarEncargado)
+router.get('/recepcion', auth.requireWebAuth, auth.requireRole('administrador', 'encargado'), recepcion.list)
+router.get('/recepcion/:id', auth.requireWebAuth, auth.requireRole('administrador', 'encargado'), recepcion.form)
+router.post('/recepcion/:id', auth.requireWebAuth, auth.requireRole('administrador', 'encargado'), verifyCsrf, recepcion.registrar)
 
 // El administrador registra y modifica. El resto del personal solo consulta.
 router.get('/expedientes', auth.requireWebAuth, expedientes.list)

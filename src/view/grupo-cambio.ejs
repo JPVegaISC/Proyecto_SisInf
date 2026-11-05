@@ -1,0 +1,25 @@
+<%- include('partials/page-start', { activePage: 'grupos' }) %>
+<nav class="breadcrumb" aria-label="Ubicación"><a href="/grupos">Grupos</a><span>/</span><a href="/expedientes/<%= menor.id %>"><%= menor.folio %></a><span>/</span>Asignación</nav>
+<header class="page-heading"><div><span class="eyebrow">ADMINISTRACIÓN</span><h1>Asignación de grupo</h1><p><%= [menor.nombres, menor.apellido_paterno, menor.apellido_materno].filter(Boolean).join(' ') %> · <%= menor.edad %></p></div><a class="btn btn-outline" href="/expedientes/<%= menor.id %>">Volver a la ficha</a></header>
+<section class="surface-card record-section record-form">
+<h2 class="small-section-title">Cambiar grupo</h2>
+<p>Grupo actual: <strong><%= grupos.find(g => g.id === menor.grupo_actual)?.nombre || 'Sin asignar' %></strong></p>
+<p>Por edad corresponde: <strong><%= grupos.find(g => g.id === grupoSugerido)?.nombre || 'Ningún grupo; revisar permanencia' %></strong></p>
+<% if (grupoSugerido && grupoSugerido !== menor.grupo_actual) { %>
+<form method="POST" action="/grupos/menores/<%= menor.id %>/cambiar">
+<input type="hidden" name="_csrf" value="<%= csrfToken %>">
+<div class="form-grid"><div><label for="grupo_id">Nuevo grupo</label><select name="grupo_id" id="grupo_id" required>
+<% grupos.forEach(g => { %><option value="<%= g.id %>" <%= g.id === grupoSugerido ? 'selected' : 'disabled' %>><%= g.nombre %> · <%= g.rango %></option><% }) %>
+</select><small class="form-help">Solo puedes asignar el grupo que corresponde a la edad.</small></div></div>
+<label for="motivo">Motivo del movimiento</label><textarea name="motivo" id="motivo" rows="3" minlength="5" maxlength="255" required placeholder="Ej. Cumplió dos años y pasa a Maternal II"></textarea>
+<div class="record-actions"><a class="btn btn-outline" href="/expedientes/<%= menor.id %>">Cancelar</a><button class="btn btn-primary" type="submit">Guardar cambio</button></div>
+</form>
+<% } else { %><p class="warn-notice"><%= grupoSugerido ? 'El menor ya está en el grupo que corresponde a su edad.' : 'El menor no cumple los rangos de los grupos. Revisa su fecha de nacimiento y la permanencia especial en su expediente.' %></p><% } %>
+</section>
+<section class="surface-card"><div class="section-title"><h2 class="small-section-title">Historial de asignaciones</h2><span class="count-pill"><%= movimientos.length %> movimientos</span></div>
+<% if (!movimientos.length) { %><p class="helper-paragraph">No hay cambios registrados todavía. Las asignaciones recuperadas del Sprint 2 conservan su grupo actual.</p><% } else { %>
+<div class="table-scroll"><table><thead><tr><th>Fecha</th><th>Anterior</th><th>Nuevo grupo</th><th>Motivo</th><th>Registró</th></tr></thead><tbody>
+<% movimientos.forEach(m => { %><tr><td><%= String(m.fecha).slice(0,19) %></td><td><%= m.anterior || 'Sin grupo' %></td><td><%= m.nuevo %></td><td><%= m.motivo %></td><td><%= m.administrador || 'Sistema' %></td></tr><% }) %>
+</tbody></table></div><% } %>
+</section>
+<%- include('partials/page-end') %>

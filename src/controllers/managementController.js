@@ -72,6 +72,13 @@ exports.update = async (req, res, next) => {
         await connection.rollback()
         return go(req, res, 'warning', 'No puedes quitarte tu rol de administrador.', `/usuarios/${id}/editar`)
       }
+      if (original.rol === 'encargado' && data.rol !== 'encargado') {
+        const [[asignados]] = await connection.execute('SELECT COUNT(*) AS total FROM grupos WHERE encargado_id = ?', [id])
+        if (Number(asignados.total) > 0) {
+          await connection.rollback()
+          return go(req, res, 'warning', 'Primero reasigna los grupos de este encargado.', `/usuarios/${id}/editar`)
+        }
+      }
       if (original.rol === 'administrador' && data.rol !== 'administrador' && original.activo) {
         const [[count]] = await connection.execute("SELECT COUNT(*) AS total FROM usuarios WHERE rol = 'administrador' AND activo = 1")
         if (count.total <= 1) {
@@ -101,6 +108,8 @@ exports.toggleActive = async (req, res, next) => {
   if (!validId(id)) return go(req, res, 'danger', 'ID de usuario inválido.')
   if (id === req.usuario.id) return go(req, res, 'warning', 'No puedes desactivar tu propia cuenta.')
   try {
+    const [[asignados]] = await db.execute('SELECT COUNT(*) AS total FROM grupos WHERE encargado_id = ?', [id])
+    if (Number(asignados.total) > 0) return go(req, res, 'warning', 'Reasigna sus grupos antes de desactivar al encargado.')
     const [result] = await db.execute('UPDATE usuarios SET activo = NOT activo, token_version = token_version + 1 WHERE id = ? AND rol <> ?', [id, 'administrador'])
     if (!result.affectedRows) return go(req, res, 'warning', 'No se encontró al usuario o es administrador. Para modificar administradores utiliza la edición.')
     go(req, res, 'success', 'Estado de la cuenta modificado. Tokens anteriores revocados.')

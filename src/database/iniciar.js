@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs')
 const db = require('./db')
 const config = require('../config')
 const { createExpedientesTables } = require('./migraciones')
+const { createGruposTables } = require('./grupos')
 
 async function initializeDatabase() {
   // Reconfirmar estructura requerida, incluso si la base fue creada sin el script de init.
@@ -16,5 +17,6 @@ async function initializeDatabase() {
   }
   // También funciona cuando MySQL ya tiene los datos del primer sprint.
   await createExpedientesTables(db)
+  await createGruposTables(db)
 }
 module.exports = { initializeDatabase }

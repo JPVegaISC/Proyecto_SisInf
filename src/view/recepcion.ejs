@@ -1,0 +1,17 @@
+<%- include('partials/page-start', { activePage: 'recepcion' }) %>
+<header class="page-heading"><div><span class="eyebrow">CONTROL DE ENTRADAS</span><h1>Recepción</h1><p><%= fecha %> · Horario de entrada de 8:00 a 9:00 h</p></div><a class="btn btn-outline" href="/grupos">Ver grupos</a></header>
+<div class="reception-stats"><div class="surface-card"><span class="small-label">REGISTRADOS HOY</span><strong><%= entradas.length %></strong><p>Entradas del día</p></div><div class="surface-card"><span class="small-label">MENORES VISIBLES</span><strong><%= menores.length %></strong><p><%= admin ? 'De los cuatro grupos' : 'De tus grupos' %></p></div><div class="surface-card"><span class="small-label">HORARIO</span><strong class="schedule-value"><%= horarioAbierto ? 'Abierto' : 'Cerrado' %></strong><p>Hora actual: <%= hora.slice(0,5) %></p></div></div>
+<% if (!horarioAbierto) { %><p class="warn-notice">El registro de nuevas entradas está cerrado. El horario permitido es de 8:00 a 9:00 h (hora del centro de México). Puedes consultar los registros existentes.</p><% } %>
+<section class="surface-card"><div class="section-title"><div><h2 class="small-section-title">Menores y entradas</h2><p>Selecciona un menor para revisar su registro.</p></div></div>
+<% if (!menores.length) { %><div class="empty-state"><h3>No hay menores asignados</h3><p>Revisa la asignación de grupos o registra un expediente nuevo.</p></div><% } else { %>
+<div class="table-scroll"><table><thead><tr><th>Menor</th><th>Grupo</th><th>Edad</th><th>Estado</th><th></th></tr></thead><tbody>
+<% menores.forEach(m => { %><tr><td><div><b><%= [m.nombres,m.apellido_paterno,m.apellido_materno].filter(Boolean).join(' ') %></b><small class="form-help"><%= m.folio %></small></div></td><td><%= m.grupo_nombre %></td><td><%= m.edad %></td><td><%= m.entrada_id ? 'Entrada ' + String(m.hora).slice(0,5) : 'Sin entrada' %></td><td><a class="inline-link" href="/recepcion/<%= m.id %>"><%= m.entrada_id ? 'Consultar' : 'Registrar / ver' %> →</a></td></tr><% }) %>
+</tbody></table></div><% } %>
+</section>
+<section class="surface-card reception-history"><div class="section-title"><div><h2 class="small-section-title">Entradas registradas hoy</h2><p>Revisiones guardadas con fecha y hora.</p></div><span class="count-pill"><%= entradas.length %></span></div>
+<% if (!entradas.length) { %><p class="helper-paragraph">Aún no se registran entradas para el día de hoy.</p><% } else { %>
+<div class="table-scroll"><table><thead><tr><th>Hora</th><th>Menor</th><th>Grupo</th><th>Revisión física</th><th></th></tr></thead><tbody>
+<% entradas.forEach(e => { %><tr><td><strong><%= String(e.hora).slice(0,5) %></strong></td><td><%= e.nombres %> <%= e.apellido_paterno %></td><td><%= e.grupo_nombre %></td><td><%= e.revision_fisica === 'sin_lesiones' ? 'Sin lesiones visibles' : 'Con observaciones' %></td><td><a class="inline-link" href="/recepcion/<%= e.menor_id %>">Ver</a></td></tr><% }) %>
+</tbody></table></div><% } %>
+</section>
+<%- include('partials/page-end') %>

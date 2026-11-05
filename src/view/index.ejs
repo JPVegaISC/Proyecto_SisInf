@@ -67,7 +67,7 @@
     <div>
       <span class="page-eyebrow">ORGANIZACIÓN</span>
       <h2 id="home-modules-title">Áreas de la guardería</h2>
-      <p>Consulta los expedientes. Las demás áreas se habilitarán en los próximos sprints.</p>
+      <p>Consulta los expedientes, los grupos y la recepción. Las otras áreas se habilitarán en los siguientes sprints.</p>
     </div>
     <span class="modules-count">5 áreas</span>
   </div>
@@ -78,12 +78,16 @@
       <p>Información de los niños, padres, tutores y cuidados.</p>
       <span class="module-state module-state-ready"><span></span> Disponible · Ver expedientes →</span>
     </a>
-    <article class="module-card module-blue">
+    <% if (usuario.rol === 'administrador' || usuario.rol === 'encargado') { %>
+    <a class="module-card module-blue" href="/grupos">
       <div class="module-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V7l8-4 8 4v14M4 21h16M9 21v-7h6v7M8 10h1m6 0h1"/></svg></div>
       <h3>Grupos y recepción</h3>
       <p>Organización por edades y control de entradas.</p>
-      <span class="module-state"><span></span> Próximamente</span>
-    </article>
+      <span class="module-state module-state-ready"><span></span> Disponible · Ver grupos →</span>
+    </a>
+    <% } else { %>
+    <article class="module-card module-blue"><div class="module-icon">▦</div><h3>Grupos y recepción</h3><p>Organización por edades y control de entradas.</p><span class="module-state">Área de encargados</span></article>
+    <% } %>
     <article class="module-card module-lilac">
       <div class="module-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M8 3v4m8-4v4M4 10h16m-12 4h3m-3 4h7"/></svg></div>
       <h3>Cuidados diarios</h3>

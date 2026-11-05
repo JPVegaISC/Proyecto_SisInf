@@ -1,5 +1,6 @@
 const db = require('../database/db')
 const { setFlash } = require('../utils/flash')
+const { grupoParaEdad, GRUPOS } = require('../models/grupo')
 const { normalizeExpediente, contactsToFields, ageLabel, todayMexico, validId, folio } = require('../models/expediente')
 
 const selectMenor = `SELECT id, nombres, apellido_paterno, apellido_materno, fecha_nacimiento, sexo, fecha_ingreso,
@@ -95,6 +96,14 @@ exports.create = async (req, res, next) => {
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [...valoresMenor(resultado.data), req.usuario.id, req.usuario.id])
     await guardarContactos(conexion, creado.insertId, resultado.contactos)
+    const grupoInicial = grupoParaEdad(resultado.data.fecha_nacimiento)
+    if (grupoInicial) {
+      await conexion.execute('INSERT INTO asignaciones_grupo (menor_id, grupo_id, asignado_por) VALUES (?, ?, ?)',
+        [creado.insertId, grupoInicial, req.usuario.id])
+      await conexion.execute(`INSERT INTO movimientos_grupo
+        (menor_id, grupo_anterior, grupo_nuevo, cambiado_por, motivo) VALUES (?, NULL, ?, ?, ?)`,
+      [creado.insertId, grupoInicial, req.usuario.id, 'Asignación inicial por edad'])
+    }
     await conexion.commit()
     setFlash(req, 'success', `Expediente ${folio(creado.insertId)} registrado.`)
     res.redirect(`/expedientes/${creado.insertId}`)
@@ -109,8 +118,14 @@ exports.show = async (req, res, next) => {
   try {
     const expediente = await buscarExpediente(Number(req.params.id))
     if (!expediente) return res.status(404).render('404', { titulo: 'Página no encontrada' })
+    const [grupos] = await db.execute(`SELECT a.grupo_id, g.nombre, g.encargado_id
+      FROM asignaciones_grupo a JOIN grupos g ON g.id = a.grupo_id WHERE a.menor_id = ?`, [expediente.id])
+    const grupoSugerido = grupoParaEdad(expediente.fecha_nacimiento, undefined,
+      Boolean(expediente.permanencia_verano), expediente.fecha_limite_permanencia)
     res.render('expediente-detalle', {
-      titulo: expediente.folio, expediente, canWrite: req.usuario.rol === 'administrador'
+      titulo: expediente.folio, expediente, grupoActual: grupos[0] || null,
+      grupoSugerido: GRUPOS.find(g => g.id === grupoSugerido),
+      canWrite: req.usuario.rol === 'administrador'
     })
   } catch (err) { next(err) }
 }

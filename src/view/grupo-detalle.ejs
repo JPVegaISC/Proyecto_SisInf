@@ -1,0 +1,27 @@
+<%- include('partials/page-start', { activePage: 'grupos' }) %>
+<nav class="breadcrumb" aria-label="Ubicación"><a href="/grupos">Grupos</a><span>/</span><%= grupo.nombre %></nav>
+<header class="page-heading"><div><span class="eyebrow">GRUPO <%= String(grupo.id).padStart(2,'0') %></span><h1><%= grupo.nombre %></h1><p>De <%= grupo.edad_min_meses %> a <%= grupo.edad_max_meses %> meses cumplidos.</p></div><a class="btn btn-outline" href="/recepcion">Ir a recepción</a></header>
+<section class="surface-card group-settings">
+  <div><h2 class="small-section-title">Encargado del grupo</h2><p><%= grupo.encargado_nombre && grupo.encargado_activo && grupo.encargado_rol === 'encargado' ? grupo.encargado_nombre : 'Sin encargado activo asignado' %></p></div>
+  <% if (esAdmin) { %><form method="POST" action="/grupos/<%= grupo.id %>/encargado" class="assign-form">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <div><label for="encargado_id">Asignar encargado</label><select id="encargado_id" name="encargado_id"><option value="">Sin asignar</option>
+      <% encargados.forEach(u => { %><option value="<%= u.id %>" <%= Number(grupo.encargado_id) === Number(u.id) ? 'selected' : '' %>><%= u.nombre %></option><% }) %>
+    </select></div><button class="btn btn-primary" type="submit">Guardar asignación</button>
+  </form><% } %>
+</section>
+<section class="surface-card">
+  <div class="section-title"><div><h2 class="small-section-title">Menores del grupo</h2><p>Revisión de asignaciones y entradas del día.</p></div><span class="count-pill"><%= menores.length %> menores</span></div>
+  <% if (menores.length === 0) { %><div class="empty-state"><h3>No hay menores en este grupo</h3><p>Los expedientes nuevos se asignan según la edad al registrarlos.</p></div><% } else { %>
+  <div class="table-scroll"><table><thead><tr><th>Expediente</th><th>Menor</th><th>Edad</th><th>Entrada de hoy</th><th></th></tr></thead><tbody>
+    <% menores.forEach(m => { %><tr>
+      <td><span class="folio-tag"><%= m.folio %></span></td>
+      <td><b><%= [m.nombres,m.apellido_paterno,m.apellido_materno].filter(Boolean).join(' ') %></b></td><td><%= m.edad %></td>
+      <td><% if (m.grupoSugerido !== grupo.id) { %><span class="text-warning">Revisar grupo</span><% } else if (m.entrada_id) { %><span class="text-good">Registrada · <%= String(m.hora_entrada).slice(0,5) %></span><% } else { %><span class="text-muted">Pendiente</span><% } %></td>
+      <td><div class="table-actions"><a class="inline-link" href="/expedientes/<%= m.id %>">Ficha</a>
+        <% if (esAdmin) { %><a class="inline-link" href="/grupos/menores/<%= m.id %>/cambiar">Grupo</a><% } %>
+        <% if (m.grupoSugerido === grupo.id) { %><a class="inline-link" href="/recepcion/<%= m.id %>">Recepción</a><% } %></div></td>
+    </tr><% }) %>
+  </tbody></table></div><% } %>
+</section>
+<%- include('partials/page-end') %>

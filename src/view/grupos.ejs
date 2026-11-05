@@ -1,0 +1,18 @@
+<%- include('partials/page-start', { activePage: 'grupos' }) %>
+<header class="page-heading"><div><span class="eyebrow">ORGANIZACIÓN POR EDADES</span><h1>Grupos</h1><p><%= esAdmin ? 'Consulta los grupos y asigna encargados.' : 'Estos son los grupos que tienes a tu cargo.' %></p></div><a class="btn btn-outline" href="/recepcion">Ver recepción</a></header>
+<div class="group-grid">
+<% grupos.forEach(g => { const rango = rangos.find(r => r.id === g.id) %>
+<a href="/grupos/<%= g.id %>" class="surface-card group-tile">
+  <span class="group-number">Grupo <%= String(g.id).padStart(2,'0') %></span>
+  <h2><%= g.nombre %></h2>
+  <p><%= rango.rango %></p>
+  <div class="group-tile-info"><span><strong><%= g.menores %></strong> menores</span><span><%= g.encargado_nombre || 'Sin encargado asignado' %></span></div>
+  <span class="inline-link">Ver grupo →</span>
+</a>
+<% }) %>
+</div>
+<% if (grupos.length === 0) { %>
+<section class="surface-card"><div class="empty-state"><h3>Todavía no tienes un grupo asignado</h3><p>Administración puede asignártelo desde la gestión de grupos.</p></div></section>
+<% } %>
+<p class="helper-paragraph">Los menores se organizan según su edad cumplida. Los cambios de grupo son exclusivos de administración y quedan registrados.</p>
+<%- include('partials/page-end') %>

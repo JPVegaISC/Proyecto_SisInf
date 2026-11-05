@@ -10,6 +10,12 @@
 <div><dt>Última modificación</dt><dd><%= String(expediente.updated_at).slice(0, 16) %></dd></div>
 </dl></section>
 <section class="surface-card"><h2 class="small-section-title">Cuidados y alimentación</h2><div class="notes-grid"><div><h3>Alergias</h3><p><%= expediente.alergias || 'No se registraron.' %></p></div><div><h3>Restricciones alimentarias</h3><p><%= expediente.restricciones_alimentarias || 'No se registraron.' %></p></div><div><h3>Cuidados especiales</h3><p><%= expediente.cuidados_especiales || 'No se registraron.' %></p></div><div><h3>Observaciones</h3><p><%= expediente.observaciones || 'No hay observaciones.' %></p></div></div></section></div>
+<section class="surface-card detail-contacts"><div class="section-title"><div><h2 class="small-section-title">Grupo y recepción</h2><p>La asignación corresponde a la edad del menor.</p></div>
+<% if (canWrite) { %><a class="btn btn-outline" href="/grupos/menores/<%= expediente.id %>/cambiar">Revisar asignación</a><% } %></div>
+<div class="summary-tags"><span>Grupo actual: <strong><%= grupoActual ? grupoActual.nombre : 'Sin asignar' %></strong></span><span>Por edad: <strong><%= grupoSugerido ? grupoSugerido.nombre : 'Revisar permanencia' %></strong></span></div>
+<% if (!grupoActual || !grupoSugerido || grupoActual.grupo_id !== grupoSugerido.id) { %><p class="warn-notice">La asignación necesita revisión de administración antes de registrar la entrada.</p><% } %>
+<% if (usuario.rol === 'administrador' || usuario.rol === 'encargado') { %><a class="inline-link" href="/recepcion/<%= expediente.id %>">Consultar recepción →</a><% } %>
+</section>
 <section class="surface-card detail-contacts">
 <div class="section-title"><div><h2 class="small-section-title">Control de identificaciones</h2><p>Personas autorizadas e identificaciones pendientes.</p></div></div>
 <div class="summary-tags"><span>Sin identificación entregada: <strong><%= expediente.credenciales_pendientes %></strong></span><span>Identificaciones adicionales solicitadas: <strong><%= expediente.identificaciones_extra %></strong></span><span>Pendientes en total: <strong><%= expediente.total_identificaciones_pendientes %></strong></span></div>
