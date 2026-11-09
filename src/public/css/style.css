@@ -343,3 +343,35 @@ h1,h2,h3 { letter-spacing: -.035em; }
 .reception-history{margin-top:17px}.reception-note{display:flex;flex-wrap:wrap;gap:14px;align-items:center;color:var(--muted);font-size:13px;margin-bottom:18px}.reception-alert{margin-bottom:18px;border-left:4px solid #d6ad61}.reception-alert p{font-size:13px;white-space:pre-wrap}
 .reception-records{display:grid;gap:12px}.reception-record{border:1px solid #e4e9e3;padding:16px;border-radius:8px;background:#fdfefc}.reception-record .section-title h3{font-size:14px}.reception-record .section-title{margin-bottom:10px}.reception-record p{font-size:12px;white-space:pre-wrap;margin-bottom:8px}.reception-record p:last-child{margin-bottom:0}
 @media(max-width:800px){.group-grid{grid-template-columns:1fr}.group-settings{display:block}.assign-form{margin-top:18px}.reception-stats{grid-template-columns:1fr}.table-actions{justify-content:flex-start}}
+
+/* Cuidados diarios e insumos */
+.cuidados-help, .care-new, .care-history { margin-top: 22px; }
+.care-examples { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 15px; }
+.care-examples p { font-size: 13px; margin: 0; }
+.care-restrictions { margin-bottom: 22px; background: #fffdfa; }
+.care-note { font-size: 12px; margin: 15px 0 0; }
+.care-timeline { display: grid; gap: 13px; }
+.care-event { border: 1px solid #e4eae5; border-left: 4px solid #7da893; padding: 15px 18px; border-radius: 7px; }
+.care-event-comida { border-left-color: #d9b76f; }
+.care-event-accidente { border-left-color: #cb7d74; }
+.care-event-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 9px; margin-bottom: 9px; }
+.care-event-top time, .care-event small { font-size: 12px; color: #78877d; }
+.care-type { color: #356c57; background: #eef6f0; font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 4px; }
+.care-event-comida .care-type { color: #8b692f; background: #faf2dc; }
+.care-event-accidente .care-type { color: #a14e47; background: #fcf0ed; }
+.care-event h3 { font-size: 15px; margin: 0 0 6px; overflow-wrap: anywhere; }
+.care-event p { font-size: 13px; white-space: pre-wrap; margin-bottom: 8px; overflow-wrap: anywhere; }
+.care-restrictions .notes-grid p { white-space: pre-wrap; overflow-wrap: anywhere; }
+.insumos-list { display: grid; gap: 12px; }
+.insumo-card { border: 1px solid var(--border); padding: 18px; border-radius: 8px; }
+.insumo-title { display: flex; justify-content: space-between; gap: 16px; align-items: start; }
+.insumo-title h3 { font-size: 15px; margin: 0 0 4px; }
+.insumo-title p, .insumo-card > p { font-size: 12px; margin: 0; }
+.stock-bajo, .stock-bien { display: inline-block; padding: 5px 9px; font-size: 11px; font-weight: bold; border-radius: 4px; white-space: nowrap; }
+.stock-bajo { color: #955c22; background: #fff3d9; }
+.stock-bien { color: #2e7453; background: #e9f4ec; }
+.insumo-fields { display: grid; grid-template-columns: minmax(160px, 2fr) repeat(3, minmax(105px, 1fr)) auto; gap: 12px; align-items: end; }
+.insumo-fields label { margin-top: 11px; }
+.insumo-fields .btn { white-space: nowrap; }
+@media (max-width: 1000px) { .insumo-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); } .care-examples { grid-template-columns: 1fr; } }
+@media (max-width: 540px) { .insumo-fields { grid-template-columns: 1fr; } .insumo-fields .btn { width: 100%; } }

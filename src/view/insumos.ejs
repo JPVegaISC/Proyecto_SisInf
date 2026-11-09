@@ -1,0 +1,36 @@
+<%- include('partials/page-start', { activePage: 'insumos' }) %>
+<nav class="breadcrumb" aria-label="Ubicación"><a href="/cuidados">Cuidados diarios</a><span>/</span>Insumos</nav>
+<header class="page-heading"><div><span class="eyebrow">MATERIAL DE LA GUARDERÍA</span><h1>Control de insumos</h1><p>Existencias de pañales, leche y otros materiales.</p></div><a class="btn btn-outline" href="/cuidados">Volver a cuidados</a></header>
+<% if (alertas) { %><p class="warn-notice"><strong>Aviso de reposición:</strong> <%= alertas %> <%= alertas === 1 ? 'insumo llegó' : 'insumos llegaron' %> a su cantidad mínima o tienen menos existencias.</p><% } %>
+<section class="surface-card">
+  <div class="section-title"><div><h2 class="small-section-title">Inventario</h2><p>Las alertas aparecen al alcanzar o bajar del mínimo establecido.</p></div><span class="count-pill"><%= insumos.length %> insumos</span></div>
+  <% if (!insumos.length) { %><div class="empty-state"><h3>No hay insumos registrados</h3><p><%= admin ? 'Agrega los materiales para comenzar el seguimiento.' : 'Administración aún no registra existencias.' %></p></div><% } else { %>
+    <div class="insumos-list">
+      <% insumos.forEach(i => { const bajo = Number(i.cantidad) <= Number(i.minimo) %>
+      <div class="insumo-card">
+        <div class="insumo-title"><div><h3><%= i.nombre %></h3><p>Última actualización: <%= String(i.updated_at).slice(0,16) %></p></div><span class="<%= bajo ? 'stock-bajo' : 'stock-bien' %>"><%= bajo ? 'Reponer' : 'Suficiente' %></span></div>
+        <% if (admin) { %>
+          <form method="POST" action="/insumos/<%= i.id %>">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <div class="insumo-fields"><div><label for="nombre-<%= i.id %>">Nombre</label><input id="nombre-<%= i.id %>" name="nombre" required maxlength="100" value="<%= i.nombre %>"></div>
+              <div><label for="unidad-<%= i.id %>">Unidad</label><input id="unidad-<%= i.id %>" name="unidad" required maxlength="30" value="<%= i.unidad %>"></div>
+              <div><label for="cantidad-<%= i.id %>">Existencia</label><input id="cantidad-<%= i.id %>" name="cantidad" type="number" min="0" max="1000000" step="1" required value="<%= i.cantidad %>"></div>
+              <div><label for="minimo-<%= i.id %>">Mínimo</label><input id="minimo-<%= i.id %>" name="minimo" type="number" min="0" max="1000000" step="1" required value="<%= i.minimo %>"></div>
+              <button class="btn btn-outline" type="submit">Guardar</button></div>
+          </form>
+        <% } else { %><p>Existencia: <strong><%= i.cantidad %> <%= i.unidad %></strong> · Mínimo: <%= i.minimo %> <%= i.unidad %></p><% } %>
+      </div><% }) %>
+    </div>
+  <% } %>
+</section>
+<% if (admin) { %>
+<section class="surface-card care-new"><div class="section-title"><div><h2 class="small-section-title">Agregar un insumo</h2><p>Define la existencia real y el mínimo para recibir avisos oportunos.</p></div></div>
+<form method="POST" action="/insumos"><input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <div class="insumo-fields"><div><label for="nuevo-nombre">Nombre *</label><input id="nuevo-nombre" name="nombre" maxlength="100" placeholder="Ej. Pañales" required></div>
+  <div><label for="nuevo-unidad">Unidad *</label><input id="nuevo-unidad" name="unidad" maxlength="30" placeholder="Ej. piezas" required></div>
+  <div><label for="nuevo-cantidad">Existencia *</label><input id="nuevo-cantidad" name="cantidad" type="number" min="0" max="1000000" step="1" value="0" required></div>
+  <div><label for="nuevo-minimo">Cantidad mínima *</label><input id="nuevo-minimo" name="minimo" type="number" min="0" max="1000000" step="1" value="5" required></div>
+  <button class="btn btn-primary" type="submit">Agregar</button></div>
+</form></section>
+<% } %>
+<%- include('partials/page-end') %>

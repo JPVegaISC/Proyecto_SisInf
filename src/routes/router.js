@@ -8,6 +8,8 @@ const usuarios = require('../controllers/managementController')
 const expedientes = require('../controllers/expedientesController')
 const grupos = require('../controllers/gruposController')
 const recepcion = require('../controllers/recepcionController')
+const cuidados = require('../controllers/cuidadosController')
+const insumos = require('../controllers/insumosController')
 
 router.get('/login', (req, res) => req.usuario ? res.redirect('/') : login.loginView(req, res))
 router.post('/login', verifyCsrf, login.loginWeb)
@@ -33,6 +35,14 @@ router.post('/grupos/:id/encargado', auth.requireWebAuth, auth.requireRole('admi
 router.get('/recepcion', auth.requireWebAuth, auth.requireRole('administrador', 'encargado'), recepcion.list)
 router.get('/recepcion/:id', auth.requireWebAuth, auth.requireRole('administrador', 'encargado'), recepcion.form)
 router.post('/recepcion/:id', auth.requireWebAuth, auth.requireRole('administrador', 'encargado'), verifyCsrf, recepcion.registrar)
+
+// Cuidados diarios y control de insumos.
+router.get('/cuidados', auth.requireWebAuth, auth.requireRole('administrador', 'encargado'), cuidados.list)
+router.get('/cuidados/:id', auth.requireWebAuth, auth.requireRole('administrador', 'encargado'), cuidados.show)
+router.post('/cuidados/:id', auth.requireWebAuth, auth.requireRole('administrador', 'encargado'), verifyCsrf, cuidados.registrar)
+router.get('/insumos', auth.requireWebAuth, auth.requireRole('administrador', 'encargado'), insumos.list)
+router.post('/insumos', auth.requireWebAuth, auth.requireRole('administrador'), verifyCsrf, insumos.crear)
+router.post('/insumos/:id', auth.requireWebAuth, auth.requireRole('administrador'), verifyCsrf, insumos.actualizar)
 
 // El administrador registra y modifica. El resto del personal solo consulta.
 router.get('/expedientes', auth.requireWebAuth, expedientes.list)

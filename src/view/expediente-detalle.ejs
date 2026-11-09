@@ -14,7 +14,7 @@
 <% if (canWrite) { %><a class="btn btn-outline" href="/grupos/menores/<%= expediente.id %>/cambiar">Revisar asignación</a><% } %></div>
 <div class="summary-tags"><span>Grupo actual: <strong><%= grupoActual ? grupoActual.nombre : 'Sin asignar' %></strong></span><span>Por edad: <strong><%= grupoSugerido ? grupoSugerido.nombre : 'Revisar permanencia' %></strong></span></div>
 <% if (!grupoActual || !grupoSugerido || grupoActual.grupo_id !== grupoSugerido.id) { %><p class="warn-notice">La asignación necesita revisión de administración antes de registrar la entrada.</p><% } %>
-<% if (usuario.rol === 'administrador' || usuario.rol === 'encargado') { %><a class="inline-link" href="/recepcion/<%= expediente.id %>">Consultar recepción →</a><% } %>
+<% if (usuario.rol === 'administrador' || usuario.rol === 'encargado') { %><a class="inline-link" href="/recepcion/<%= expediente.id %>">Consultar recepción →</a> <a class="inline-link" href="/cuidados/<%= expediente.id %>">Ver bitácora diaria →</a><% } %>
 </section>
 <section class="surface-card detail-contacts">
 <div class="section-title"><div><h2 class="small-section-title">Control de identificaciones</h2><p>Personas autorizadas e identificaciones pendientes.</p></div></div>

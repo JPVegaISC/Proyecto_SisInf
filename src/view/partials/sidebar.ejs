@@ -23,6 +23,14 @@
         <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v16H4zM8 9h8M8 13h8M8 17h5"/></svg>
         Recepción
       </a>
+      <a href="/cuidados" class="<%= activePage === 'cuidados' ? 'selected' : '' %>" <%- activePage === 'cuidados' ? 'aria-current="page"' : '' %>>
+        <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3h8M9 2v4m6-4v4M5 7h14v14H5zM9 12h6m-6 4h6"/></svg>
+        Cuidados diarios
+      </a>
+      <a href="/insumos" class="<%= activePage === 'insumos' ? 'selected' : '' %>" <%- activePage === 'insumos' ? 'aria-current="page"' : '' %>>
+        <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="8" width="16" height="13" rx="2"/><path d="M8 8V4h8v4M4 13h16"/></svg>
+        Insumos
+      </a>
       <% } %>
       <% if (usuario.rol === 'administrador') { %>
         <a href="/usuarios" class="<%= activePage === 'usuarios' ? 'selected' : '' %>" <%- activePage === 'usuarios' ? 'aria-current="page"' : '' %>>

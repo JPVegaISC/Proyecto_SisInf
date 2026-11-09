@@ -1,0 +1,40 @@
+<%- include('partials/page-start', { activePage: 'cuidados' }) %>
+<nav class="breadcrumb" aria-label="Ubicación"><a href="/cuidados">Cuidados diarios</a><span>/</span><%= menor.folio %></nav>
+<header class="page-heading"><div><span class="eyebrow">BITÁCORA <%= menor.folio %></span><h1><%= [menor.nombres, menor.apellido_paterno, menor.apellido_materno].filter(Boolean).join(' ') %></h1><p><%= menor.edad %> · <%= menor.grupo_nombre || 'Sin grupo' %> · <%= fecha %></p></div><a class="btn btn-outline" href="/expedientes/<%= menor.id %>">Ver expediente</a></header>
+<section class="surface-card care-restrictions">
+  <div class="section-title"><h2 class="small-section-title">Información importante para su alimentación</h2><span class="folio-tag">Consultar antes de ofrecer alimentos</span></div>
+  <div class="notes-grid"><div><h3>Alergias registradas</h3><p><%= menor.alergias || 'Sin alergias registradas.' %></p></div>
+  <div><h3>Restricciones alimentarias</h3><p><%= menor.restricciones_alimentarias || 'Sin restricciones registradas.' %></p></div>
+  <div><h3>Indicaciones por edad</h3><% avisosEdad.forEach(a => { %><p><%= a %></p><% }) %></div>
+  <div><h3>Cuidados especiales</h3><p><%= menor.cuidados_especiales || 'Sin indicaciones adicionales.' %></p></div></div>
+  <p class="care-note">Consulta siempre las indicaciones del expediente antes de registrar una comida. Esta información no sustituye las indicaciones médicas.</p>
+</section>
+<% if (!entrada) { %><p class="warn-notice">No hay entrada de hoy registrada en Recepción. Verifica la asistencia del menor. <a class="inline-link" href="/recepcion/<%= menor.id %>">Consultar recepción →</a></p><% } %>
+<section class="surface-card care-new">
+  <div class="section-title"><div><h2 class="small-section-title">Nuevo registro</h2><p>Se guarda con la fecha y hora actual del sistema: <%= fecha %>, <%= hora.slice(0,5) %> h.</p></div><span class="folio-tag"><%= entrada ? "Entrada " + String(entrada.hora).slice(0,5) + " h" : "Sin entrada de hoy" %></span></div>
+  <form method="POST" action="/cuidados/<%= menor.id %>">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <div class="form-grid"><div><label for="tipo">Tipo de registro *</label><select name="tipo" id="tipo" required>
+      <option value="">Selecciona una opción</option><option value="actividad">Actividad</option><option value="comida">Comida / alimentación</option><option value="accidente">Accidente / incidente</option>
+    </select></div>
+    <div><label for="descripcion">Descripción *</label><input id="descripcion" name="descripcion" maxlength="500" required placeholder="Qué actividad, alimento o incidente ocurrió"></div>
+    <div class="full-field"><label for="observaciones">Observaciones</label><textarea name="observaciones" id="observaciones" maxlength="2000" rows="3" placeholder="Cantidad de alimento, respuesta del menor, detalles del incidente o medidas tomadas"></textarea></div></div>
+    <div class="form-actions"><button class="btn btn-primary" type="submit">Guardar en bitácora</button></div>
+  </form>
+</section>
+<section class="surface-card care-history">
+  <div class="section-title"><div><h2 class="small-section-title">Historial de cuidados</h2><p>Últimos <%= registros.length %> registros, del más reciente al más antiguo.</p></div><span class="count-pill"><%= registros.length %></span></div>
+  <% if (!registros.length) { %><p class="helper-paragraph">Todavía no se registran actividades, comidas o accidentes para este menor.</p><% } else { %>
+    <div class="care-timeline">
+    <% registros.forEach(r => { const etiqueta = { actividad: 'Actividad', comida: 'Comida', accidente: 'Accidente' }[r.tipo] %>
+      <article class="care-event care-event-<%= r.tipo %>">
+        <div class="care-event-top"><span class="care-type"><%= etiqueta %></span><time><%= r.fecha %> · <%= String(r.hora).slice(0,5) %></time></div>
+        <h3><%= r.descripcion %></h3>
+        <% if (r.observaciones) { %><p><%= r.observaciones %></p><% } %>
+        <small>Registrado por: <%= r.registrado_nombre || 'Personal no disponible' %></small>
+      </article>
+    <% }) %>
+    </div>
+  <% } %>
+</section>
+<%- include('partials/page-end') %>

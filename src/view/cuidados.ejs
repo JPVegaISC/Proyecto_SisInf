@@ -1,0 +1,24 @@
+<%- include('partials/page-start', { activePage: 'cuidados' }) %>
+<header class="page-heading">
+  <div><span class="eyebrow">SEGUIMIENTO DIARIO</span><h1>Cuidados diarios</h1><p><%= fecha %> · Actividades, alimentación y accidentes.</p></div>
+  <a class="btn btn-outline" href="/insumos">Ver insumos <%= alertas ? '(' + alertas + ' avisos)' : '' %></a>
+</header>
+<% if (alertas > 0) { %><p class="warn-notice"><strong>Insumos por reponer:</strong> hay <%= alertas %> <%= alertas === 1 ? 'insumo' : 'insumos' %> con existencias en el mínimo o por debajo. <a class="inline-link" href="/insumos">Revisar inventario →</a></p><% } %>
+<section class="surface-card">
+  <div class="section-title"><div><h2 class="small-section-title">Bitácoras de los menores</h2><p><%= admin ? 'Menores de todos los grupos.' : 'Menores de los grupos asignados.' %> Las entradas de hoy se muestran para facilitar el seguimiento.</p></div><span class="count-pill"><%= menores.length %></span></div>
+  <% if (!menores.length) { %>
+    <div class="empty-state"><h3>No hay menores en tus grupos</h3><p>Revisa las asignaciones y los expedientes antes de registrar actividades.</p></div>
+  <% } else { %>
+    <div class="table-scroll"><table><thead><tr><th>Menor</th><th>Grupo</th><th>Recepción de hoy</th><th>Registros de hoy</th><th></th></tr></thead><tbody>
+    <% menores.forEach(m => { %>
+      <tr><td><b><%= [m.nombres, m.apellido_paterno, m.apellido_materno].filter(Boolean).join(' ') %></b><small class="form-help"><%= m.folio %></small></td>
+      <td><%= m.grupo_nombre %></td><td><span class="<%= m.entrada_id ? 'text-good' : 'text-muted' %>"><%= m.entrada_id ? 'Entrada registrada' : 'Sin entrada' %></span></td>
+      <td><%= m.cantidad_registros %></td><td><a class="inline-link" href="/cuidados/<%= m.id %>">Abrir bitácora →</a></td></tr>
+    <% }) %>
+    </tbody></table></div>
+  <% } %>
+</section>
+<section class="surface-card cuidados-help"><h2 class="small-section-title">Qué se registra aquí</h2>
+  <div class="care-examples"><p><strong>Actividades:</strong> juegos, descanso, aprendizaje y rutinas.</p><p><strong>Comidas:</strong> alimentos ofrecidos, horarios y observaciones.</p><p><strong>Accidentes:</strong> lo que ocurrió y las medidas tomadas.</p></div>
+</section>
+<%- include('partials/page-end') %>
