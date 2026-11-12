@@ -67,7 +67,7 @@
     <div>
       <span class="page-eyebrow">ORGANIZACIÓN</span>
       <h2 id="home-modules-title">Áreas de la guardería</h2>
-      <p>Consulta expedientes, grupos, recepción y cuidados diarios. Las otras áreas se habilitarán en los siguientes sprints.</p>
+      <p>Consulta expedientes, grupos, recepción, cuidados y salidas. Enfermería se integrará en el siguiente avance.</p>
     </div>
     <span class="modules-count">5 áreas</span>
   </div>
@@ -103,12 +103,16 @@
       <p>Control de salud, revisiones y medicamentos.</p>
       <span class="module-state"><span></span> Próximamente</span>
     </article>
-    <article class="module-card module-green">
+    <% if (usuario.rol === 'administrador') { %>
+    <a class="module-card module-green" href="/salidas">
       <div class="module-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h12m-5-5 5 5-5 5M19 4h2v16h-2"/></svg></div>
       <h3>Salidas y movimientos</h3>
       <p>Entrega de menores, bajas y reinscripciones.</p>
-      <span class="module-state"><span></span> Próximamente</span>
-    </article>
+      <span class="module-state module-state-ready"><span></span> Disponible · Registrar salidas →</span>
+    </a>
+    <% } else { %>
+    <article class="module-card module-green"><h3>Salidas y movimientos</h3><p>Área de administración.</p><span class="module-state">Solo administradores</span></article>
+    <% } %>
   </div>
 </section>
 <%- include('partials/page-end') %>

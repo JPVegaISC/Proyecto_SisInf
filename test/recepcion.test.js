@@ -11,10 +11,12 @@ let encargadoId = 2
 require.cache[dbPath] = { id: dbPath, filename: dbPath, loaded: true, exports: {
   execute: async (sql, params) => {
     consultas.push({ sql, params })
+    if (sql.includes('FROM horario_recepcion')) return [[{ inicio: '08:00:00', fin: '09:00:00' }]]
     if (sql.includes('FROM menores m LEFT JOIN asignaciones_grupo')) return [[{
       id: 7, nombres: 'Elena', apellido_paterno: 'López', fecha_nacimiento: '2026-01-01',
       fecha_ingreso: '2026-09-01', permanencia_verano: 0, fecha_limite_permanencia: null,
-      grupo_id: 1, grupo_nombre: 'Lactantes', encargado_id: encargadoId
+      grupo_id: 1, grupo_nombre: 'Lactantes', encargado_id: encargadoId,
+      edad_min_meses: 1, edad_max_meses: 11, activo: 1, estado: 'activo'
     }]]
     if (sql.includes('INSERT INTO entradas')) {
       if (duplicado) throw Object.assign(new Error('duplicada'), { code: 'ER_DUP_ENTRY' })
@@ -45,9 +47,9 @@ test('rechaza una entrada fuera del horario aunque el formulario envíe datos v�
   consultas.length = 0
   const req = request(), res = response()
   await recepcion.registrar(req, res, err => { throw err })
-  assert.equal(consultas.length, 0)
+  assert.equal(consultas.filter(c => c.sql.includes('INSERT INTO entradas')).length, 0)
   assert.equal(res.redirectTo, '/recepcion/7')
-  assert.match(req.session.flash.message, /8:00 a 9:00/)
+  assert.match(req.session.flash.message, /08:00 a 09:00/)
 })
 
 test('un encargado asignado registra la revisión y los artículos con hora del servidor', async () => {

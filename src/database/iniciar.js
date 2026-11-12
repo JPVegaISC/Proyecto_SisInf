@@ -4,6 +4,7 @@ const config = require('../config')
 const { createExpedientesTables } = require('./migraciones')
 const { createGruposTables } = require('./grupos')
 const { createCuidadosTables } = require('./cuidados')
+const { createSalidasTables } = require('./salidas')
 
 async function initializeDatabase() {
   // Reconfirmar estructura requerida, incluso si la base fue creada sin el script de init.
@@ -20,5 +21,6 @@ async function initializeDatabase() {
   await createExpedientesTables(db)
   await createGruposTables(db)
   await createCuidadosTables(db)
+  await createSalidasTables(db)
 }
 module.exports = { initializeDatabase }

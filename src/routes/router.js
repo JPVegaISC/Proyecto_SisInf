@@ -10,6 +10,8 @@ const grupos = require('../controllers/gruposController')
 const recepcion = require('../controllers/recepcionController')
 const cuidados = require('../controllers/cuidadosController')
 const insumos = require('../controllers/insumosController')
+const salidas = require('../controllers/salidasController')
+const movimientos = require('../controllers/movimientosController')
 
 router.get('/login', (req, res) => req.usuario ? res.redirect('/') : login.loginView(req, res))
 router.post('/login', verifyCsrf, login.loginWeb)
@@ -28,13 +30,23 @@ router.post('/usuarios/:id/estado', auth.requireWebAuth, auth.requireRole('admin
 
 // Administración organiza los grupos; los encargados consultan los asignados.
 router.get('/grupos', auth.requireWebAuth, auth.requireRole('administrador', 'encargado'), grupos.list)
+router.post('/grupos/nuevo', auth.requireWebAuth, auth.requireRole('administrador'), verifyCsrf, grupos.crearGrupo)
+router.post('/grupos/:id/desactivar', auth.requireWebAuth, auth.requireRole('administrador'), verifyCsrf, grupos.desactivarGrupo)
 router.get('/grupos/menores/:id/cambiar', auth.requireWebAuth, auth.requireRole('administrador'), grupos.cambioForm)
 router.post('/grupos/menores/:id/cambiar', auth.requireWebAuth, auth.requireRole('administrador'), verifyCsrf, grupos.cambiarGrupo)
 router.get('/grupos/:id', auth.requireWebAuth, auth.requireRole('administrador', 'encargado'), grupos.show)
 router.post('/grupos/:id/encargado', auth.requireWebAuth, auth.requireRole('administrador'), verifyCsrf, grupos.asignarEncargado)
 router.get('/recepcion', auth.requireWebAuth, auth.requireRole('administrador', 'encargado'), recepcion.list)
+router.post('/recepcion/horario', auth.requireWebAuth, auth.requireRole('administrador'), verifyCsrf, recepcion.actualizarHorario)
 router.get('/recepcion/:id', auth.requireWebAuth, auth.requireRole('administrador', 'encargado'), recepcion.form)
 router.post('/recepcion/:id', auth.requireWebAuth, auth.requireRole('administrador', 'encargado'), verifyCsrf, recepcion.registrar)
+
+// Salidas, avisos y movimientos del expediente.
+router.get('/salidas', auth.requireWebAuth, auth.requireRole('administrador'), salidas.list)
+router.get('/salidas/:id', auth.requireWebAuth, auth.requireRole('administrador'), salidas.form)
+router.post('/salidas/:id/aviso', auth.requireWebAuth, auth.requireRole('administrador'), verifyCsrf, salidas.avisar)
+router.post('/salidas/:id', auth.requireWebAuth, auth.requireRole('administrador'), verifyCsrf, salidas.registrar)
+router.post('/expedientes/:id/estado', auth.requireWebAuth, auth.requireRole('administrador'), verifyCsrf, movimientos.cambiarEstado)
 
 // Cuidados diarios y control de insumos.
 router.get('/cuidados', auth.requireWebAuth, auth.requireRole('administrador', 'encargado'), cuidados.list)

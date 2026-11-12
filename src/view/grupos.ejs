@@ -1,11 +1,18 @@
 <%- include('partials/page-start', { activePage: 'grupos' }) %>
 <header class="page-heading"><div><span class="eyebrow">ORGANIZACIÓN POR EDADES</span><h1>Grupos</h1><p><%= esAdmin ? 'Consulta los grupos y asigna encargados.' : 'Estos son los grupos que tienes a tu cargo.' %></p></div><a class="btn btn-outline" href="/recepcion">Ver recepción</a></header>
+<% if (esAdmin) { %>
+<details class="surface-card management-details"><summary>+ Crear grupo adicional</summary>
+<p class="form-help">Crea, por ejemplo, Maternal I A o Maternal II B. El grupo no aparecerá hasta que lo registres.</p>
+<form method="POST" action="/grupos/nuevo" class="record-form"><input type="hidden" name="_csrf" value="<%= csrfToken %>">
+<div class="form-grid"><div><label for="nombre_grupo">Nombre del grupo *</label><input id="nombre_grupo" name="nombre" minlength="3" maxlength="80" required placeholder="Ej. Maternal I B"></div>
+<div><label for="rango_id">Edad que atenderá *</label><select name="rango_id" id="rango_id" required><% rangos.forEach(r => { %><option value="<%= r.id %>"><%= r.nombre %> · <%= r.rango %></option><% }) %></select></div></div>
+<div class="record-actions"><button type="submit" class="btn btn-primary">Crear grupo</button></div></form></details><% } %>
 <div class="group-grid">
-<% grupos.forEach(g => { const rango = rangos.find(r => r.id === g.id) %>
+<% grupos.forEach(g => { const rango = rangos.find(r => r.min === g.edad_min_meses && r.max === g.edad_max_meses) %>
 <a href="/grupos/<%= g.id %>" class="surface-card group-tile">
   <span class="group-number">Grupo <%= String(g.id).padStart(2,'0') %></span>
   <h2><%= g.nombre %></h2>
-  <p><%= rango.rango %></p>
+  <p><%= rango ? rango.rango : `De ${g.edad_min_meses} a ${g.edad_max_meses} meses` %></p>
   <div class="group-tile-info"><span><strong><%= g.menores %></strong> menores</span><span><%= g.encargado_nombre || 'Sin encargado asignado' %></span></div>
   <span class="inline-link">Ver grupo →</span>
 </a>
@@ -14,5 +21,5 @@
 <% if (grupos.length === 0) { %>
 <section class="surface-card"><div class="empty-state"><h3>Todavía no tienes un grupo asignado</h3><p>Administración puede asignártelo desde la gestión de grupos.</p></div></section>
 <% } %>
-<p class="helper-paragraph">Los menores se organizan según su edad cumplida. Los cambios de grupo son exclusivos de administración y quedan registrados.</p>
+<p class="helper-paragraph">Cada grupo tiene su rango de edad. Administración puede crear grupos adicionales y mover a los menores conservando un historial.</p>
 <%- include('partials/page-end') %>

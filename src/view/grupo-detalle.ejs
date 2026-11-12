@@ -10,6 +10,7 @@
     </select></div><button class="btn btn-primary" type="submit">Guardar asignación</button>
   </form><% } %>
 </section>
+<% if (esAdmin && grupo.id > 4 && grupo.activo) { %><form method="POST" action="/grupos/<%= grupo.id %>/desactivar" class="inline-admin-form" onsubmit="return confirm('¿Desactivar este grupo? Solo será posible si está vacío.')"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button type="submit" class="btn btn-outline">Desactivar grupo adicional</button></form><% } %>
 <section class="surface-card">
   <div class="section-title"><div><h2 class="small-section-title">Menores del grupo</h2><p>Revisión de asignaciones y entradas del día.</p></div><span class="count-pill"><%= menores.length %> menores</span></div>
   <% if (menores.length === 0) { %><div class="empty-state"><h3>No hay menores en este grupo</h3><p>Los expedientes nuevos se asignan según la edad al registrarlos.</p></div><% } else { %>
@@ -17,10 +18,10 @@
     <% menores.forEach(m => { %><tr>
       <td><span class="folio-tag"><%= m.folio %></span></td>
       <td><b><%= [m.nombres,m.apellido_paterno,m.apellido_materno].filter(Boolean).join(' ') %></b></td><td><%= m.edad %></td>
-      <td><% if (m.grupoSugerido !== grupo.id) { %><span class="text-warning">Revisar grupo</span><% } else if (m.entrada_id) { %><span class="text-good">Registrada · <%= String(m.hora_entrada).slice(0,5) %></span><% } else { %><span class="text-muted">Pendiente</span><% } %></td>
+      <td><% if (m.estado === 'baja') { %><span class="text-warning">Baja</span><% } else if (!m.grupoCorrecto) { %><span class="text-warning">Revisar grupo</span><% } else if (m.entrada_id) { %><span class="text-good">Registrada · <%= String(m.hora_entrada).slice(0,5) %></span><% } else { %><span class="text-muted">Pendiente</span><% } %></td>
       <td><div class="table-actions"><a class="inline-link" href="/expedientes/<%= m.id %>">Ficha</a>
-        <% if (esAdmin) { %><a class="inline-link" href="/grupos/menores/<%= m.id %>/cambiar">Grupo</a><% } %>
-        <% if (m.grupoSugerido === grupo.id) { %><a class="inline-link" href="/recepcion/<%= m.id %>">Recepción</a><% } %></div></td>
+        <% if (esAdmin && m.estado === "activo") { %><a class="inline-link" href="/grupos/menores/<%= m.id %>/cambiar">Grupo</a><% } %>
+        <% if (m.grupoCorrecto && m.estado === "activo") { %><a class="inline-link" href="/recepcion/<%= m.id %>">Recepción</a><% } %></div></td>
     </tr><% }) %>
   </tbody></table></div><% } %>
 </section>

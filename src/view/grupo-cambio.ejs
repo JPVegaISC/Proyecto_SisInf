@@ -5,16 +5,16 @@
 <h2 class="small-section-title">Cambiar grupo</h2>
 <p>Grupo actual: <strong><%= grupos.find(g => g.id === menor.grupo_actual)?.nombre || 'Sin asignar' %></strong></p>
 <p>Por edad corresponde: <strong><%= grupos.find(g => g.id === grupoSugerido)?.nombre || 'Ningún grupo; revisar permanencia' %></strong></p>
-<% if (grupoSugerido && grupoSugerido !== menor.grupo_actual) { %>
+<% if (menor.estado === "activo" && grupos.some(g => g.id !== menor.grupo_actual && (g.edad_min_meses <= edadMeses && g.edad_max_meses >= edadMeses))) { %>
 <form method="POST" action="/grupos/menores/<%= menor.id %>/cambiar">
 <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 <div class="form-grid"><div><label for="grupo_id">Nuevo grupo</label><select name="grupo_id" id="grupo_id" required>
-<% grupos.forEach(g => { %><option value="<%= g.id %>" <%= g.id === grupoSugerido ? 'selected' : 'disabled' %>><%= g.nombre %> · <%= g.rango %></option><% }) %>
-</select><small class="form-help">Solo puedes asignar el grupo que corresponde a la edad.</small></div></div>
+<% grupos.forEach(g => { const permitido = edadMeses >= g.edad_min_meses && edadMeses <= g.edad_max_meses %><option value="<%= g.id %>" <%= !permitido || g.id === menor.grupo_actual ? 'disabled' : '' %>><%= g.nombre %> · de <%= g.edad_min_meses %> a <%= g.edad_max_meses %> meses</option><% }) %>
+</select><small class="form-help">Puedes elegir cualquier grupo activo cuyo rango corresponda a la edad del menor.</small></div></div>
 <label for="motivo">Motivo del movimiento</label><textarea name="motivo" id="motivo" rows="3" minlength="5" maxlength="255" required placeholder="Ej. Cumplió dos años y pasa a Maternal II"></textarea>
 <div class="record-actions"><a class="btn btn-outline" href="/expedientes/<%= menor.id %>">Cancelar</a><button class="btn btn-primary" type="submit">Guardar cambio</button></div>
 </form>
-<% } else { %><p class="warn-notice"><%= grupoSugerido ? 'El menor ya está en el grupo que corresponde a su edad.' : 'El menor no cumple los rangos de los grupos. Revisa su fecha de nacimiento y la permanencia especial en su expediente.' %></p><% } %>
+<% } else { %><p class="warn-notice"><%= grupoSugerido ? 'No hay otro grupo disponible para su rango de edad.' : 'El menor no cumple los rangos de los grupos. Revisa su fecha de nacimiento y la permanencia especial en su expediente.' %></p><% } %>
 </section>
 <section class="surface-card"><div class="section-title"><h2 class="small-section-title">Historial de asignaciones</h2><span class="count-pill"><%= movimientos.length %> movimientos</span></div>
 <% if (!movimientos.length) { %><p class="helper-paragraph">No hay cambios registrados todavía. Las asignaciones recuperadas del Sprint 2 conservan su grupo actual.</p><% } else { %>

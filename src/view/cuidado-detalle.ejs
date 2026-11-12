@@ -10,7 +10,7 @@
   <p class="care-note">Consulta siempre las indicaciones del expediente antes de registrar una comida. Esta información no sustituye las indicaciones médicas.</p>
 </section>
 <% if (!entrada) { %><p class="warn-notice">No hay entrada de hoy registrada en Recepción. Verifica la asistencia del menor. <a class="inline-link" href="/recepcion/<%= menor.id %>">Consultar recepción →</a></p><% } %>
-<section class="surface-card care-new">
+<% if (menor.estado === "activo") { %><section class="surface-card care-new">
   <div class="section-title"><div><h2 class="small-section-title">Nuevo registro</h2><p>Se guarda con la fecha y hora actual del sistema: <%= fecha %>, <%= hora.slice(0,5) %> h.</p></div><span class="folio-tag"><%= entrada ? "Entrada " + String(entrada.hora).slice(0,5) + " h" : "Sin entrada de hoy" %></span></div>
   <form method="POST" action="/cuidados/<%= menor.id %>">
     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
@@ -21,7 +21,7 @@
     <div class="full-field"><label for="observaciones">Observaciones</label><textarea name="observaciones" id="observaciones" maxlength="2000" rows="3" placeholder="Cantidad de alimento, respuesta del menor, detalles del incidente o medidas tomadas"></textarea></div></div>
     <div class="form-actions"><button class="btn btn-primary" type="submit">Guardar en bitácora</button></div>
   </form>
-</section>
+</section><% } else { %><p class="warn-notice">El expediente está dado de baja. Puedes consultar el historial, pero no registrar cuidados nuevos.</p><% } %>
 <section class="surface-card care-history">
   <div class="section-title"><div><h2 class="small-section-title">Historial de cuidados</h2><p>Últimos <%= registros.length %> registros, del más reciente al más antiguo.</p></div><span class="count-pill"><%= registros.length %></span></div>
   <% if (!registros.length) { %><p class="helper-paragraph">Todavía no se registran actividades, comidas o accidentes para este menor.</p><% } else { %>

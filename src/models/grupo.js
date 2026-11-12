@@ -23,8 +23,19 @@ function fechaHoraMexico(fecha = new Date()) {
   return { fecha: `${part('year')}-${part('month')}-${part('day')}`, hora: `${part('hour')}:${part('minute')}:${part('second')}` }
 }
 
-function enHorarioRecepcion(hora) {
-  return typeof hora === 'string' && /^\d{2}:\d{2}:\d{2}$/.test(hora) && hora >= '08:00:00' && hora <= '09:00:00'
+function enHorarioRecepcion(hora, inicio = '08:00:00', fin = '09:00:00') {
+  return typeof hora === 'string' && /^\d{2}:\d{2}:\d{2}$/.test(hora) && hora >= inicio && hora <= fin
+}
+function edadCorrespondeGrupo(fechaNacimiento, grupo, hoy = todayMexico(), permanencia = false, fechaLimite = null) {
+  const meses = ageInMonths(fechaNacimiento, hoy)
+  if (meses === null || meses < 1 || !grupo || !grupo.activo) return false
+  if (meses >= 48) return Boolean(permanencia && fechaLimite && fechaLimite >= hoy && Number(grupo.edad_max_meses) === 47)
+  return meses >= Number(grupo.edad_min_meses) && meses <= Number(grupo.edad_max_meses)
+}
+function validarHorario(inicio, fin) {
+  const valido = v => /^([01]\d|2[0-3]):[0-5]\d$/.test(v || '')
+  if (!valido(inicio) || !valido(fin) || inicio >= fin) return null
+  return { inicio: inicio + ':00', fin: fin + ':00' }
 }
 
 const ARTICULOS = ['leche', 'panales', 'ropa', 'cobija']
@@ -53,4 +64,4 @@ function validarRecepcion(body = {}) {
   return { data, faltantes: ARTICULOS.filter(campo => data[campo] === 'no') }
 }
 
-module.exports = { GRUPOS, grupoParaEdad, fechaHoraMexico, enHorarioRecepcion, validarRecepcion, ARTICULOS, validId }
+module.exports = { GRUPOS, grupoParaEdad, fechaHoraMexico, enHorarioRecepcion, edadCorrespondeGrupo, validarHorario, validarRecepcion, ARTICULOS, validId }

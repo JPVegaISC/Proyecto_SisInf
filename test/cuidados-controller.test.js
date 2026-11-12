@@ -17,7 +17,7 @@ const conexion = {
   release: () => { releases++ },
   execute: async (sql, params) => {
     consultas.push({ sql, params })
-    if (sql.includes('FROM menores m LEFT JOIN asignaciones_grupo')) return [[{ id: 9, encargado_id: encargadoId }]]
+    if (sql.includes('FROM menores m LEFT JOIN asignaciones_grupo')) return [[{ id: 9, encargado_id: encargadoId, estado: 'activo' }]]
     if (sql.includes('FROM entradas WHERE menor_id')) return [tieneEntrada ? [{ id: 81 }] : []]
     if (sql.includes('INSERT INTO cuidados_diarios')) return [{ insertId: 45 }]
     throw new Error('Consulta no simulada: ' + sql)

@@ -17,7 +17,7 @@ function puedeAtender(usuario, menor) {
 async function buscarMenor(id) {
   const [[menor]] = await db.execute(`SELECT m.id, m.nombres, m.apellido_paterno, m.apellido_materno,
     m.fecha_nacimiento, m.fecha_ingreso, m.alergias, m.restricciones_alimentarias,
-    m.cuidados_especiales, g.nombre AS grupo_nombre, g.encargado_id,
+    m.cuidados_especiales, m.estado, g.nombre AS grupo_nombre, g.encargado_id,
     g.id AS grupo_id
     FROM menores m LEFT JOIN asignaciones_grupo a ON a.menor_id = m.id
     LEFT JOIN grupos g ON g.id = a.grupo_id WHERE m.id = ?`, [id])
@@ -35,7 +35,7 @@ exports.list = async (req, res, next) => {
       JOIN grupos g ON g.id = a.grupo_id
       LEFT JOIN entradas e ON e.menor_id = m.id AND e.fecha = ?
       LEFT JOIN cuidados_diarios c ON c.menor_id = m.id AND c.fecha = ?
-      ${admin ? '' : 'WHERE g.encargado_id = ?'}
+      ${admin ? "WHERE m.estado = 'activo'" : "WHERE g.encargado_id = ? AND m.estado = 'activo'"}
       GROUP BY m.id, m.nombres, m.apellido_paterno, m.apellido_materno,
         g.nombre, e.id ORDER BY g.id, m.apellido_paterno, m.nombres`,
     admin ? [hoy, hoy] : [hoy, hoy, req.usuario.id])
@@ -76,11 +76,12 @@ exports.registrar = async (req, res, next) => {
     conexion = await db.getConnection()
     await conexion.beginTransaction()
     // Comprobar la asignación al guardar, no solo al abrir el formulario.
-    const [[menor]] = await conexion.execute(`SELECT m.id, g.encargado_id
+    const [[menor]] = await conexion.execute(`SELECT m.id, m.estado, g.encargado_id
       FROM menores m LEFT JOIN asignaciones_grupo a ON a.menor_id = m.id
       LEFT JOIN grupos g ON g.id = a.grupo_id WHERE m.id = ? FOR UPDATE`, [id])
     if (!menor) { await conexion.rollback(); return notFound(res) }
     if (!puedeAtender(req.usuario, menor)) { await conexion.rollback(); return forbidden(res) }
+    if (menor.estado !== 'activo') { await conexion.rollback(); return avisar(req, res, 'warning', 'El expediente dado de baja no admite registros nuevos.', destino) }
     const ahora = fechaHoraMexico()
     const [[entrada]] = await conexion.execute(
       'SELECT id FROM entradas WHERE menor_id = ? AND fecha = ? FOR UPDATE', [id, ahora.fecha])

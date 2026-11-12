@@ -10,11 +10,22 @@ async function createGruposTables(db) {
     CONSTRAINT fk_grupo_encargado FOREIGN KEY (encargado_id) REFERENCES usuarios(id) ON DELETE SET NULL
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`)
 
-  await db.query(`INSERT INTO grupos (id, nombre, edad_min_meses, edad_max_meses) VALUES
+  await db.query(`INSERT IGNORE INTO grupos (id, nombre, edad_min_meses, edad_max_meses) VALUES
     (1, 'Lactantes', 1, 11), (2, 'Maternal I', 12, 23),
     (3, 'Maternal II', 24, 35), (4, 'Preescolar', 36, 47)
-    ON DUPLICATE KEY UPDATE nombre = VALUES(nombre), edad_min_meses = VALUES(edad_min_meses),
-      edad_max_meses = VALUES(edad_max_meses)`)
+   `)
+
+  const [activos] = await db.query("SHOW COLUMNS FROM grupos LIKE 'activo'")
+  if (!activos.length) await db.query('ALTER TABLE grupos ADD COLUMN activo TINYINT(1) NOT NULL DEFAULT 1')
+  await db.query(`CREATE TABLE IF NOT EXISTS horario_recepcion (
+    id TINYINT UNSIGNED NOT NULL PRIMARY KEY,
+    inicio TIME NOT NULL DEFAULT '08:00:00',
+    fin TIME NOT NULL DEFAULT '09:00:00',
+    modificado_por INT UNSIGNED NULL,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_horario_admin FOREIGN KEY (modificado_por) REFERENCES usuarios(id) ON DELETE SET NULL
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`)
+  await db.query("INSERT IGNORE INTO horario_recepcion (id, inicio, fin) VALUES (1, '08:00:00', '09:00:00')")
 
   await db.query(`CREATE TABLE IF NOT EXISTS asignaciones_grupo (
     menor_id INT UNSIGNED NOT NULL PRIMARY KEY,

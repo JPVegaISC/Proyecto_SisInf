@@ -1,11 +1,11 @@
 const db = require('../database/db')
 const { setFlash } = require('../utils/flash')
-const { grupoParaEdad, GRUPOS } = require('../models/grupo')
+const { grupoParaEdad, GRUPOS, edadCorrespondeGrupo } = require('../models/grupo')
 const { normalizeExpediente, contactsToFields, ageLabel, todayMexico, validId, folio } = require('../models/expediente')
 
 const selectMenor = `SELECT id, nombres, apellido_paterno, apellido_materno, fecha_nacimiento, sexo, fecha_ingreso,
   alergias, restricciones_alimentarias, cuidados_especiales, observaciones, permanencia_verano,
-  fecha_limite_permanencia, identificaciones_extra, registrado_por, actualizado_por, created_at, updated_at
+  fecha_limite_permanencia, identificaciones_extra, estado, fecha_baja, registrado_por, actualizado_por, created_at, updated_at
   FROM menores WHERE id = ?`
 const selectContactos = `SELECT id, tipo, nombre, parentesco, telefono, correo, puede_recoger, posicion,
   identificacion_entregada, fecha_entrega_identificacion
@@ -71,7 +71,7 @@ exports.list = async (req, res, next) => {
     const where = q ? `WHERE nombres LIKE ? ESCAPE '!' OR apellido_paterno LIKE ? ESCAPE '!'
       OR apellido_materno LIKE ? ESCAPE '!' OR CAST(id AS CHAR) = ?` : ''
     const params = q ? [patron, patron, patron, q] : []
-    const [filas] = await db.execute(`SELECT id, nombres, apellido_paterno, apellido_materno, fecha_nacimiento
+    const [filas] = await db.execute(`SELECT id, nombres, apellido_paterno, apellido_materno, fecha_nacimiento, estado
       FROM menores ${where} ORDER BY id DESC LIMIT 200`, params)
     res.render('expedientes', {
       titulo: 'Expedientes', menores: filas.map(m => ({ ...m, folio: folio(m.id), edad: ageLabel(m.fecha_nacimiento) })),
@@ -118,14 +118,23 @@ exports.show = async (req, res, next) => {
   try {
     const expediente = await buscarExpediente(Number(req.params.id))
     if (!expediente) return res.status(404).render('404', { titulo: 'Página no encontrada' })
-    const [grupos] = await db.execute(`SELECT a.grupo_id, g.nombre, g.encargado_id
+    const [grupos] = await db.execute(`SELECT a.grupo_id, g.nombre, g.encargado_id, g.edad_min_meses, g.edad_max_meses, g.activo
       FROM asignaciones_grupo a JOIN grupos g ON g.id = a.grupo_id WHERE a.menor_id = ?`, [expediente.id])
     const grupoSugerido = grupoParaEdad(expediente.fecha_nacimiento, undefined,
       Boolean(expediente.permanencia_verano), expediente.fecha_limite_permanencia)
+    const [movimientosEstado] = await db.execute(`SELECT mov.tipo, mov.motivo, mov.fecha,
+      u.nombre AS responsable FROM movimientos_menor mov
+      LEFT JOIN usuarios u ON u.id = mov.registrado_por WHERE mov.menor_id = ?
+      ORDER BY mov.id DESC`, [expediente.id])
+    const [[retrasos]] = await db.execute('SELECT COUNT(*) AS total FROM salidas WHERE menor_id = ? AND retraso = 1', [expediente.id])
     res.render('expediente-detalle', {
       titulo: expediente.folio, expediente, grupoActual: grupos[0] || null,
       grupoSugerido: GRUPOS.find(g => g.id === grupoSugerido),
-      canWrite: req.usuario.rol === 'administrador'
+      grupoValido: edadCorrespondeGrupo(expediente.fecha_nacimiento, grupos[0], undefined,
+        Boolean(expediente.permanencia_verano), expediente.fecha_limite_permanencia),
+      movimientosEstado, retrasos: Number(retrasos.total),
+      canWrite: req.usuario.rol === 'administrador' && expediente.estado === 'activo',
+      esAdmin: req.usuario.rol === 'administrador'
     })
   } catch (err) { next(err) }
 }
@@ -135,6 +144,10 @@ exports.editForm = async (req, res, next) => {
   try {
     const expediente = await buscarExpediente(Number(req.params.id))
     if (!expediente) return res.status(404).render('404', { titulo: 'Página no encontrada' })
+    if (expediente.estado !== 'activo') {
+      setFlash(req, 'warning', 'El expediente dado de baja no puede editarse.')
+      return res.redirect(`/expedientes/${expediente.id}`)
+    }
     mostrarFormulario(res, { ...expediente, ...contactsToFields(expediente.contactos) }, null, expediente.id)
   } catch (err) { next(err) }
 }
@@ -148,10 +161,15 @@ exports.update = async (req, res, next) => {
   try {
     conexion = await db.getConnection()
     await conexion.beginTransaction()
-    const [filas] = await conexion.execute('SELECT id FROM menores WHERE id = ? FOR UPDATE', [id])
+    const [filas] = await conexion.execute('SELECT id, estado FROM menores WHERE id = ? FOR UPDATE', [id])
     if (!filas.length) {
       await conexion.rollback()
       return res.status(404).render('404', { titulo: 'Página no encontrada' })
+    }
+    if (filas[0].estado !== 'activo') {
+      await conexion.rollback()
+      setFlash(req, 'warning', 'No se pueden modificar expedientes dados de baja.')
+      return res.redirect(`/expedientes/${id}`)
     }
     await conexion.execute(`UPDATE menores SET nombres = ?, apellido_paterno = ?, apellido_materno = ?,
       fecha_nacimiento = ?, sexo = ?, fecha_ingreso = ?, alergias = ?, restricciones_alimentarias = ?,

@@ -50,7 +50,7 @@ test('la revisión física y los artículos requieren valores válidos', () => {
   assert.match(validarRecepcion(recepcion({ observaciones_fisicas: 'a'.repeat(1001) })).error, /longitud/)
 })
 
-test('la migración crea cuatro tablas sin borrar información del Sprint 2', async () => {
+test('la migración conserva los datos y crea tablas con horario configurable', async () => {
   const { createGruposTables } = require('../src/database/grupos')
   const queries = []
   const db = {
@@ -58,7 +58,7 @@ test('la migración crea cuatro tablas sin borrar información del Sprint 2', as
     execute: async (sql) => { queries.push(sql); return [[]] }
   }
   await createGruposTables(db)
-  assert.equal(queries.filter(q => q.includes('CREATE TABLE IF NOT EXISTS')).length, 4)
+  assert.equal(queries.filter(q => q.includes('CREATE TABLE IF NOT EXISTS')).length, 5)
   assert(queries.some(q => q.includes('UNIQUE KEY uq_entrada_menor_fecha')))
   assert(queries.every(sql => !/DROP TABLE|TRUNCATE TABLE|DELETE FROM menores/.test(sql)))
 })
@@ -81,4 +81,14 @@ test('la migración asigna los expedientes anteriores según edad sin sobreescri
   // los intentos de migración sean aditivos y dirigidos a los expedientes sin grupo.
   await createGruposTables(db)
   assert(insertados.every(v => v[0] === 7 || v[0] === 8))
+})
+
+test('el horario de recepción puede cambiarse desde administración', () => {
+  const { validarHorario, edadCorrespondeGrupo } = require('../src/models/grupo')
+  assert.deepEqual(validarHorario('07:00', '10:30'), { inicio: '07:00:00', fin: '10:30:00' })
+  assert.equal(validarHorario('19:30', '10:00'), null)
+  assert.equal(validarHorario('25:30', '26:00'), null)
+  assert.equal(enHorarioRecepcion('09:45:00', '07:00:00', '10:30:00'), true)
+  assert.equal(edadCorrespondeGrupo('2025-09-15', { edad_min_meses: 12, edad_max_meses: 23, activo: 1 }, '2026-11-12'), true)
+  assert.equal(edadCorrespondeGrupo('2025-09-15', { edad_min_meses: 24, edad_max_meses: 35, activo: 1 }, '2026-11-12'), false)
 })

@@ -1,14 +1,15 @@
 <%- include('partials/page-start', { activePage: 'recepcion' }) %>
 <nav class="breadcrumb" aria-label="Ubicación"><a href="/recepcion">Recepción</a><span>/</span><%= menor.folio %></nav>
 <header class="page-heading"><div><span class="eyebrow">ENTRADA DEL MENOR</span><h1><%= [menor.nombres,menor.apellido_paterno,menor.apellido_materno].filter(Boolean).join(' ') %></h1><p><%= menor.folio %> · <%= menor.edad %> · <%= menor.grupo_nombre || 'Sin grupo' %></p></div><a class="btn btn-outline" href="/expedientes/<%= menor.id %>">Ver expediente</a></header>
-<div class="reception-note"><span class="folio-tag"><%= fecha %></span><span>Hora actual: <strong><%= hora.slice(0,5) %></strong></span><span>Recepción: 8:00 a 9:00 h</span></div>
+<div class="reception-note"><span class="folio-tag"><%= fecha %></span><span>Hora actual: <strong><%= hora.slice(0,5) %></strong></span><span>Horario: <%= horario.inicio.slice(0,5) %> a <%= horario.fin.slice(0,5) %> h</span></div>
 <% if (menor.alergias || menor.cuidados_especiales) { %><section class="surface-card reception-alert"><h2 class="small-section-title">Información para la recepción</h2><% if (menor.alergias) { %><p><strong>Alergias:</strong> <%= menor.alergias %></p><% } %><% if (menor.cuidados_especiales) { %><p><strong>Cuidados especiales:</strong> <%= menor.cuidados_especiales %></p><% } %></section><% } %>
-<% const habilitado = horarioAbierto && !hoyRegistrado && grupoCorrecto && !!menor.grupo_id && (!menor.fecha_ingreso || menor.fecha_ingreso <= fecha) %>
+<% const habilitado = horarioAbierto && !hoyRegistrado && grupoCorrecto && !!menor.grupo_id && menor.estado === 'activo' && (!menor.fecha_ingreso || menor.fecha_ingreso <= fecha) %>
 <% if (!habilitado) { %><p class="warn-notice">
-<% if (hoyRegistrado) { %>Este menor ya tiene una entrada registrada hoy. No se puede duplicar.
+<% if (menor.estado === "baja") { %>El expediente está dado de baja; solo se puede consultar el historial.
+<% } else if (hoyRegistrado) { %>Este menor ya tiene una entrada registrada hoy. No se puede duplicar.
 <% } else if (!grupoCorrecto || !menor.grupo_id) { %>La asignación del grupo debe revisarla administración antes de registrar la entrada.
 <% } else if (menor.fecha_ingreso && menor.fecha_ingreso > fecha) { %>El menor todavía no llega a su fecha de ingreso.
-<% } else { %>El horario de recepción está cerrado. No se permite guardar entradas fuera de 8:00 a 9:00 h.
+<% } else { %>El horario de recepción está cerrado. No se permite guardar entradas fuera de <%= horario.inicio.slice(0,5) %> a <%= horario.fin.slice(0,5) %> h.
 <% } %></p><% } %>
 <% if (habilitado) { %><form method="POST" action="/recepcion/<%= menor.id %>" class="record-form">
 <input type="hidden" name="_csrf" value="<%= csrfToken %>">
@@ -19,7 +20,7 @@
 <% articulos.forEach(campo => { const etiqueta = ({ leche: 'Leche', panales: 'Pañales', ropa: 'Ropa de cambio', cobija: 'Cobija' })[campo] %><div><label for="<%= campo %>"><%= etiqueta %> *</label><select id="<%= campo %>" name="<%= campo %>" required><option value="">Seleccionar</option><option value="si">Sí, lo trae</option><option value="no">No, hace falta</option><option value="no_aplica">No aplica</option></select></div><% }) %>
 <div><label for="otros_articulos">Otros artículos</label><input name="otros_articulos" id="otros_articulos" maxlength="255" placeholder="Ej. Medicación entregada, juguetes..."></div><div class="full-field"><label for="notas_articulos">Observaciones de artículos</label><textarea name="notas_articulos" id="notas_articulos" rows="3" maxlength="500" placeholder="Estado de los artículos, cantidades o faltantes adicionales"></textarea></div>
 </div></section><div class="record-actions"><a class="btn btn-outline" href="/recepcion">Cancelar</a><button class="btn btn-primary" type="submit">Registrar entrada</button></div></form><% } %>
-<section class="surface-card reception-history"><div class="section-title"><div><h2 class="small-section-title">Historial de entradas</h2><p>Últimos 15 registros de recepción de este menor.</p></div><span class="count-pill"><%= historial.length %></span></div>
+<section class="surface-card reception-history"><div class="section-title"><div><h2 class="small-section-title">Historial de entradas</h2><p>Últimas 15 entradas y la fecha consultada, si es distinta.</p></div><span class="count-pill"><%= historial.length %></span></div>
 <% if (!historial.length) { %><p class="helper-paragraph">Aún no hay entradas registradas para este menor.</p><% } else { %><div class="reception-records">
 <% historial.forEach(e => { const faltantes = articulos.filter(a => e[a] === 'no').map(a => a === 'panales' ? 'Pañales' : a.charAt(0).toUpperCase() + a.slice(1)) %>
 <div class="reception-record"><div class="section-title"><h3><%= e.fecha %> · <%= String(e.hora).slice(0,5) %></h3><span class="<%= e.revision_fisica === 'sin_lesiones' ? 'text-good' : 'text-warning' %>"><%= e.revision_fisica === 'sin_lesiones' ? 'Sin lesiones visibles' : 'Con observaciones' %></span></div>

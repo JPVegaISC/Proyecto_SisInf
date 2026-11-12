@@ -375,3 +375,28 @@ h1,h2,h3 { letter-spacing: -.035em; }
 .insumo-fields .btn { white-space: nowrap; }
 @media (max-width: 1000px) { .insumo-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); } .care-examples { grid-template-columns: 1fr; } }
 @media (max-width: 540px) { .insumo-fields { grid-template-columns: 1fr; } .insumo-fields .btn { width: 100%; } }
+
+/* Formularios por apartados */
+.record-accordion { padding: 0; margin: 0 0 11px; overflow: hidden; border: 1px solid #d9e3e7; }
+.record-accordion .accordion-header { cursor: pointer; display: flex; gap: 13px; align-items: center; min-height: 52px; padding: 13px 19px; color: #f5f9ff; background: #254261; font-size: 14px; font-weight: 650; list-style: none; }
+.record-accordion .accordion-header::-webkit-details-marker { display: none; }
+.record-accordion .accordion-header:hover { background: #305777; }
+.accordion-header:focus-visible, .management-details summary:focus-visible { outline: 3px solid #74a9e7; outline-offset: -2px; }
+.accordion-burger { font-size: 20px; line-height: 1; font-weight: normal; }
+.accordion-step { font-size: 11px; background: #3f6886; padding: 4px 7px; border-radius: 4px; }
+.accordion-name { flex: 1; }
+.accordion-chevron { width: 9px; height: 9px; border: solid #e1f0f7; border-width: 0 2px 2px 0; transform: rotate(45deg); transition: transform .15s ease; }
+.record-accordion[open] .accordion-chevron { transform: rotate(225deg); }
+.record-accordion .accordion-content { padding: 18px 24px 24px; }
+.accordion-help { font-size: 12px; color: var(--muted); margin: 0 0 14px; }
+.management-details { margin-bottom: 17px; }
+.management-details summary { cursor: pointer; font-weight: 700; color: #254e69; padding: 4px 0; }
+.management-details[open] summary { margin-bottom: 20px; }
+.management-details .form-grid { margin-top: 13px; }
+.search-date { display: flex; align-items: center; gap: 13px; margin-bottom: 18px; flex-wrap: wrap; }
+.search-date label { margin: 0; }
+.search-date input { max-width: 210px; }
+.inline-admin-form { display: flex; justify-content: flex-end; margin: 0 0 16px; }
+.status-form { border-top: 1px solid var(--border); padding-top: 17px; margin-top: 18px; max-width: 620px; }
+.status-form .record-actions { margin-bottom: 0; }
+@media (max-width:720px) { .record-accordion .accordion-content { padding: 15px; } .search-date { display: block; } .search-date>* { margin: 8px 7px 8px 0; } }
